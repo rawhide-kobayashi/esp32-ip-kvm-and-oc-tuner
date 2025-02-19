@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MJPEG Stream Viewer</title>
+    <style>
+        .stream-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .stream-view {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="stream-container">
+        <img src="{{ url_for('video_feed') }}" class="stream-view" />
+    </div>
+</body>
+</html>
