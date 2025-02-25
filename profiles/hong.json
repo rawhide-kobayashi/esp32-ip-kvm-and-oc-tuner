@@ -1,1 +1,1 @@
-{"video_device": {"friendly_name": "WARRKY USB 3.0", "format": "mjpeg", "resolution": "1920x1080", "fps": "60.000"}, "esp32_serial": "usb-Espressif_USB_JTAG_serial_debug_unit_CC:8D:A2:0F:C0:08-if00"}
+{"video_device": {"friendly_name": "WARRKY USB 3.0", "format": "mjpeg", "resolution": "1920x1080", "fps": "60.000"}, "esp32_serial": "usb-1a86_USB_Single_Serial_585D015807-if00"}

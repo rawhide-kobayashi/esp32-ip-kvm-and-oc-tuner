@@ -21,8 +21,6 @@ class FrameBuffer(threading.Thread):
 
     def capture_feed(self):
         device = self.acquire_device()
-        print(device)
-        time.sleep(5)
         while True:
             # try:
             #     for frame in device.decode(video=0):
@@ -72,7 +70,7 @@ class FrameBuffer(threading.Thread):
         else:
             raise RuntimeError("We're on something other than Linux, and that's not yet supported!")
 
-        device.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+        device.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"YUYV"))
         device.set(cv2.CAP_PROP_FRAME_WIDTH, int(profile["video_device"]["resolution"].split('x')[0]))
         device.set(cv2.CAP_PROP_FRAME_HEIGHT, int(profile["video_device"]["resolution"].split('x')[1]))
         device.set(cv2.CAP_PROP_FPS, float(profile["video_device"]["fps"]))

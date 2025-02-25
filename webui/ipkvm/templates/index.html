@@ -1,22 +1,14 @@
 <!DOCTYPE html>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="{{ url_for('static', filename='vendor/socket.io.min.js') }}"></script>
 <html>
 <head>
-    <title>MJPEG Stream Viewer</title>
-    <style>
-        .stream-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .stream-view {
-            width: 100%;
-            height: auto;
-        }
-    </style>
+    <title>IP KVM & OC Tuner</title>
 </head>
 <body>
-    <div class="stream-container">
-        <img src="{{ url_for('video_feed') }}" class="stream-view" />
+    <div id="streamview" class="stream-container">
+        <img src="/video_feed" class="stream-view" />
     </div>
 </body>
 </html>
+<script src="{{ url_for('static', filename='mkb_handler.js') }}"></script>

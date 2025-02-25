@@ -1,10 +1,12 @@
 from os import name, listdir
 from flask import Flask
+from flask_socketio import SocketIO
 import json
 import logging
 
-ui = Flask(__name__)
-logger = ui.logger
+app = Flask(__name__)
+ui = SocketIO(app)
+logger = app.logger
 logger.setLevel(logging.INFO)
 
 def new_profile():
