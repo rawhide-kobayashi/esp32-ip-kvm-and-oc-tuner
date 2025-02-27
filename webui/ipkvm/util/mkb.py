@@ -1,9 +1,24 @@
 from enum import IntEnum
+from os import name
+import serial
+from ipkvm import profile
+import threading
+from queue import Queue
+import json
+
+# Python can't make number to number enums???
+HIDMouseScanCodes = {
+    0: 1,
+    2: 2,
+    1: 4,
+    3: 8,
+    4: 16
+}
 
 # God Bless CHADGPT
 class HIDKeyCode(IntEnum):
     """
-    Enum that translates modern JS key.code values to HID scancodes.
+    Enum that translates modern JS key.code andvalues to HID scancodes.
     """
     # Letter keys (A-Z)
     KeyA = 4
@@ -132,3 +147,36 @@ class HIDKeyCode(IntEnum):
     ShiftRight = 229
     AltRight = 230
     MetaRight = 231  # Windows / Command key (right)
+
+class Esp32Serial(threading.Thread):
+    def __init__(self):
+        super().__init__()
+        self.post_code_queue: Queue[str] = Queue()
+        self.mkb_queue: Queue[dict[str, int | dict[str, int]]] = Queue()
+        self.change_serial_device = threading.Event()
+        self.device = self.get_device()
+
+        self.start()
+
+    def run(self):
+        while True:
+            if self.change_serial_device.is_set():
+                self.change_serial_device.clear()
+                self.device = self.get_device()
+            
+            with self.device as ser:
+                while not self.mkb_queue.empty():
+                    msg = self.mkb_queue.get()
+                    ser.write(json.dumps(msg).encode())
+
+                while ser.in_waiting > 0:
+                    print(ser.read().hex())
+                    # self.post_code_queue.put(ser.read().hex())
+
+    def get_device(self):
+        if name == "posix":
+            return serial.Serial(f"/dev/serial/by-id/{profile["esp32_serial"]}", 115200, bytesize=serial.EIGHTBITS,
+                                 parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE)
+        
+        else:
+            raise RuntimeError("Your OS is unsupported!")

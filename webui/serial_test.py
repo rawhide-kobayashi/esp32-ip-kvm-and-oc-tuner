@@ -22,6 +22,20 @@ test_json_b = {
   "key_down": []
 }
 
+test_json_c = {
+    "mouse_coord": {
+        "x": 100,
+        "y": 100,
+    }
+}
+
+test_json_d = {
+    "mouse_coord": {
+        "x": 32000,
+        "y": 32000,
+    }
+}
+
 def read_serial(port):
     try:
         # Open the serial port
@@ -30,11 +44,12 @@ def read_serial(port):
             while True:
                 # Read a line from the serial port
                 while ser.in_waiting > 0:
-                    line = ser.readline()   
+                    line = str(ser.read().hex())
                     print(f'{datetime.datetime.now()} {line}')
                 # Print the raw data
-                ser.write(json.dumps(test_json_a).encode())
-                ser.write(json.dumps(test_json_b).encode())
+                ser.write(json.dumps(test_json_c).encode())
+                time.sleep(1)
+                ser.write(json.dumps(test_json_d).encode())
                 time.sleep(1)
     except serial.SerialException as e:
         print(f"Error: {e}")

@@ -1,0 +1,77 @@
+digraph bios
+{
+    //compound = true
+    node [shape = "box"]
+    style = dashed
+    color = red
+    main [label = "Main"]
+    //rankdir = "LR"
+
+    oc_tweaker [label = "OC Tweaker"]
+    gaming_mode [label = "Gaming Mode" value = "Disabled"]
+    tdp_to_105w [label = "TDP to 105W" value = "Disabled"]
+
+    subgraph cluster_advanced
+    {
+        advanced [label = "Advanced"]
+        cpu_config [label = "CPU Configuration"]
+        pci_config [label = "PCI Configuration"]
+        onb_dev_config [label = "Onboard Devices Configuration"]
+        stor_config [label = "Storage Configuration"]
+        acpi_config [label = "ACPI Configuration"]
+        usb_config [label = "USB Configuration"]
+        trust_com [label = "Trusted Computing"]
+        amd_cbs [label = "AMD CBS"]
+        amd_pbs [label = "AMD PBS"]
+        amd_oc [label = "AMD Overclocking"]
+        oc_menu [label = "OC Menu"]
+    }
+
+    
+
+    tool [label = "Tool"]
+    hw_mon [label = "H/W Monitor"]
+    security [label = "Security"]
+    boot [label = "Boot"]
+    exit [label = "Exit"]
+    save_and_exit [label = "Save Changes and Exit"]
+
+    main -> oc_tweaker [keypath = "ArrowRight"]
+    oc_tweaker -> advanced [keypath = "ArrowRight"]
+    advanced -> tool [keypath = "ArrowRight"]
+    tool -> hw_mon [keypath = "ArrowRight"]
+    hw_mon -> security [keypath = "ArrowRight"]
+    security -> boot [keypath = "ArrowRight"]
+    boot -> exit [keypath = "ArrowRight"]
+
+    exit -> boot [keypath = "ArrowLeft"]
+    boot -> security [keypath = "ArrowLeft"]
+    security -> hw_mon [keypath = "ArrowLeft"]
+    hw_mon -> tool [keypath = "ArrowLeft"]
+    tool -> advanced [keypath = "ArrowLeft"]
+    advanced -> oc_tweaker [keypath = "ArrowLeft"]
+    oc_tweaker -> main [keypath = "ArrowLeft"]
+
+    oc_tweaker -> gaming_mode [keypath = "Home"]
+    gaming_mode -> oc_tweaker [keypath = "Home"]
+    gaming_mode -> tdp_to_105w [keypath = "ArrowDown"]
+    tdp_to_105w -> gaming_mode [keypath = "ArrowUp"]
+
+    advanced -> cpu_config [keypath = "Home"]
+    cpu_config -> pci_config [keypath = "ArrowDown"]
+    pci_config -> onb_dev_config [keypath = "ArrowDown"]
+    onb_dev_config -> stor_config [keypath = "ArrowDown"]
+    stor_config -> acpi_config [keypath = "ArrowDown"]
+    acpi_config -> usb_config [keypath = "ArrowDown"]
+    usb_config -> trust_com [keypath = "ArrowDown"]
+    trust_com -> amd_cbs [keypath = "ArrowDown"]
+    amd_cbs -> amd_pbs [keypath = "ArrowDown"]
+    amd_pbs -> amd_oc [keypath = "ArrowDown"]
+
+    cpu_config, pci_config, onb_dev_config, stor_config, acpi_config, usb_config, trust_com, amd_cbs, amd_pbs, amd_oc -> advanced [keypath = "Home"]
+
+    amd_oc -> oc_menu [keypath = "Enter,Enter"]
+    oc_menu -> amd_oc [keypath = "Escape,Escape"]
+
+    exit -> save_and_exit [keypath = "Enter,Enter"]
+}

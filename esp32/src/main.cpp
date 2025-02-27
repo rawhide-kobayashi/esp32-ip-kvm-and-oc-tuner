@@ -12,7 +12,7 @@ void loop() {}
 #include <USBHIDMouse.h>
 #include <USBHIDKeyboard.h>
 
-USBHIDMouse Mouse;
+USBHIDAbsoluteMouse Mouse;
 USBHIDKeyboard Keyboard;
 
 HardwareSerial &host_serial = Serial;
@@ -36,20 +36,11 @@ void setup()
 
 void loop()
 {
-    // Keyboard.write(0x4C);
-    // Keyboard.pressRaw(HID_KEY_DELETE);
-    // Keyboard.releaseRaw(HID_KEY_DELETE);
-    //  put your main code here, to run repeatedly:
-    /*if (Serial.available() > 0) {
-      char inChar = Serial.read();
-
-
-    }*/
-    //while (mobo_serial.available())
-    //{
-    //    char c = mobo_serial.read();
-    //    host_serial.write(c);
-    //}
+    while (mobo_serial.available())
+    {
+        char c = mobo_serial.read();
+        host_serial.write(c);
+    }
     if (host_serial.available())
     {
         DeserializationError error = deserializeJson(mkb_input, host_serial);
@@ -63,21 +54,46 @@ void loop()
 
         else
         {
-            JsonArray key_down = mkb_input["key_down"];
-            JsonArray key_up = mkb_input["key_up"];
-            //host_serial.println("Hej!");
-            //serializeJsonPretty(key_down, host_serial);
-            //serializeJsonPretty(key_up, host_serial);
-            //host_serial.println("Hej2!");
-            for (JsonVariant key : key_down)
+            //JsonArray key_down = mkb_input["key_down"];
+            //JsonArray key_up = mkb_input["key_up"];
+            ////host_serial.println("Hej!");
+            ////serializeJsonPretty(key_down, host_serial);
+            ////serializeJsonPretty(key_up, host_serial);
+            ////host_serial.println("Hej2!");
+            //for (JsonVariant key : key_down)
+            //{
+            //    Keyboard.pressRaw(key.as<u8_t>());
+            //    //host_serial.println(key.as<u8_t>());
+            //}
+            //for (JsonVariant key : key_up)
+            //{
+            //    Keyboard.releaseRaw(key.as<u8_t>());
+            //    //host_serial.println(key.as<u8_t>());
+            //}
+
+            if (mkb_input["key_down"].is<JsonVariant>())
             {
-                Keyboard.pressRaw(key.as<u8_t>());
-                host_serial.println(key.as<u8_t>());
+                Keyboard.pressRaw(mkb_input["key_down"].as<uint8_t>());
             }
-            for (JsonVariant key : key_up)
+
+            else if (mkb_input["key_up"].is<JsonVariant>())
             {
-                Keyboard.releaseRaw(key.as<u8_t>());
-                host_serial.println(key.as<u8_t>());
+                Keyboard.releaseRaw(mkb_input["key_up"].as<uint8_t>());
+            }
+
+            else if (mkb_input["mouse_coord"].is<JsonVariant>())
+            {
+                Mouse.move(mkb_input["mouse_coord"]["x"].as<int16_t>(), mkb_input["mouse_coord"]["y"].as<int16_t>());
+            }
+
+            else if (mkb_input["mouse_down"].is<JsonVariant>())
+            {
+                Mouse.press(mkb_input["mouse_down"].as<uint8_t>());
+            }
+
+            else if (mkb_input["mouse_up"].is<JsonVariant>())
+            {
+                Mouse.release(mkb_input["mouse_up"].as<uint8_t>());
             }
         }
     }

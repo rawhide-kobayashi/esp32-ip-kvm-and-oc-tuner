@@ -1,10 +1,7 @@
 from ipkvm import app, ui
-from ipkvm import frame_buffer
+from ipkvm import frame_buffer, esp32_serial
 from flask import Response, render_template
-import time
-from ipkvm.util.mkb import HIDKeyCode
-import serial
-import json
+from ipkvm.util.mkb import HIDKeyCode, HIDMouseScanCodes
 
 def generate_frames():
     while True:
@@ -14,34 +11,47 @@ def generate_frames():
                b'Content-Type: image/jpeg\r\n\r\n' + frame_buffer.cur_frame + b'\r\n')
         
 @ui.on('key_down')
-def handle_keydown(data):
-    test_json_a = {
-      "mouseX": 99999,
-      "mouseY": 99999,
-      "mouse_down": ["rbutton", "lbutton"],
-      "mouse_up": ["otherbutton"],
-      "key_up": [],
-      "key_down": [HIDKeyCode[data]]
+def handle_keydown(data: str):
+    msg = {
+      "key_down": HIDKeyCode[data].value
     }
 
-    print(HIDKeyCode[data])
-    with serial.Serial('/dev/serial/by-id/usb-1a86_USB_Single_Serial_585D015807-if00', 115200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE) as ser:
-        ser.write(json.dumps(test_json_a).encode())
+    esp32_serial.mkb_queue.put(msg)
 
 @ui.on('key_up')
-def handle_keyup(data):
-    test_json_a = {
-      "mouseX": 99999,
-      "mouseY": 99999,
-      "mouse_down": ["rbutton", "lbutton"],
-      "mouse_up": ["otherbutton"],
-      "key_up": [HIDKeyCode[data]],
-      "key_down": []
+def handle_keyup(data: str):
+    msg = {
+      "key_up": HIDKeyCode[data].value
     }
 
-    print(HIDKeyCode[data])
-    with serial.Serial('/dev/serial/by-id/usb-1a86_USB_Single_Serial_585D015807-if00', 115200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE) as ser:
-        ser.write(json.dumps(test_json_a).encode())
+    esp32_serial.mkb_queue.put(msg)
+
+@ui.on("mouse_move")
+def handle_mousemove(data: list[int]):
+    msg = {
+      "mouse_coord": {
+          "x": data[0],
+          "y": data[1]
+      }
+    }
+
+    esp32_serial.mkb_queue.put(msg)
+
+@ui.on('mouse_down')
+def handle_mousedown(data: int):
+    msg = {
+      "mouse_down": HIDMouseScanCodes[data]
+    }
+    
+    esp32_serial.mkb_queue.put(msg)
+
+@ui.on('mouse_up')
+def handle_mouseup(data: int):
+    msg = {
+      "mouse_up": HIDMouseScanCodes[data]
+    }
+    
+    esp32_serial.mkb_queue.put(msg)
 
 @app.route('/video_feed')
 def video_feed():

@@ -4,6 +4,7 @@ from flask_socketio import SocketIO
 import json
 import logging
 
+
 app = Flask(__name__)
 ui = SocketIO(app)
 logger = app.logger
@@ -94,7 +95,9 @@ elif len(listdir("profiles")) == 1:
 
 from ipkvm.util import video
 from ipkvm import feed
+from ipkvm.util.mkb import Esp32Serial
 
 frame_buffer = feed.FrameBuffer()
+esp32_serial = Esp32Serial()
 
 from ipkvm import routes
