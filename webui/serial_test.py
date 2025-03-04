@@ -41,16 +41,19 @@ def read_serial(port):
         # Open the serial port
         with serial.Serial(port, 115200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE) as ser:
             print(f"Listening on {port} at 115200 baud...")
+            line = ser.readline().decode().strip()
             while True:
                 # Read a line from the serial port
                 while ser.in_waiting > 0:
-                    line = str(ser.read().hex())
-                    print(f'{datetime.datetime.now()} {line}')
+                    line = ser.readline().decode().strip()
+                    line = json.loads(line)
+                    print(line)
+                    # print(json.loads(ser.read_all()))
                 # Print the raw data
-                ser.write(json.dumps(test_json_c).encode())
-                time.sleep(1)
-                ser.write(json.dumps(test_json_d).encode())
-                time.sleep(1)
+                #ser.write(json.dumps(test_json_c).encode())
+                #time.sleep(1)
+                #ser.write(json.dumps(test_json_d).encode())
+                #time.sleep(1)
     except serial.SerialException as e:
         print(f"Error: {e}")
     except KeyboardInterrupt:

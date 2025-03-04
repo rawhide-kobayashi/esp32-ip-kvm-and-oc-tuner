@@ -11,6 +11,7 @@ void loop() {}
 #include <USB.h>
 #include <USBHIDMouse.h>
 #include <USBHIDKeyboard.h>
+#include <USBHIDSystemControl.h>
 
 USBHIDAbsoluteMouse Mouse;
 USBHIDKeyboard Keyboard;
@@ -19,11 +20,15 @@ HardwareSerial &host_serial = Serial;
 HardwareSerial &mobo_serial = Serial1;
 
 JsonDocument mkb_input;
+JsonDocument post_codes;
+JsonDocument power_status;
 
 // put function declarations here:
 int myFunction(int, int);
 
-char buffer[100];
+const int8_t pwr_button = 3;
+const int8_t cmos_button = 46;
+const int8_t pwr_detect = 8;
 
 void setup()
 {
@@ -32,15 +37,42 @@ void setup()
     Mouse.begin();
     Keyboard.begin();
     USB.begin();
+    pinMode(pwr_button, OUTPUT);
+    pinMode(cmos_button, OUTPUT);
+    pinMode(pwr_detect, INPUT);
 }
 
 void loop()
 {
+    static volatile int64_t cur_loop_timestamp = esp_timer_get_time();
+    cur_loop_timestamp = esp_timer_get_time();
+    // Immediately check power status!
+    static volatile int64_t check_power_status_timestamp = -200000;
+
+    if (cur_loop_timestamp - check_power_status_timestamp >= 100000)
+    {
+        if (analogRead(pwr_detect) > 1000)
+        {
+            power_status["pwr"] = "on";
+        }
+
+        else
+        {
+            power_status["pwr"] = "off";
+        }
+
+        serializeJson(power_status, host_serial);
+        host_serial.write('\n');
+        check_power_status_timestamp = esp_timer_get_time();
+    }
+
     while (mobo_serial.available())
     {
-        char c = mobo_serial.read();
-        host_serial.write(c);
+        post_codes["post_code"] = mobo_serial.read();
+        serializeJson(post_codes, host_serial);
+        host_serial.write('\n');
     }
+
     if (host_serial.available())
     {
         DeserializationError error = deserializeJson(mkb_input, host_serial);
@@ -54,23 +86,6 @@ void loop()
 
         else
         {
-            //JsonArray key_down = mkb_input["key_down"];
-            //JsonArray key_up = mkb_input["key_up"];
-            ////host_serial.println("Hej!");
-            ////serializeJsonPretty(key_down, host_serial);
-            ////serializeJsonPretty(key_up, host_serial);
-            ////host_serial.println("Hej2!");
-            //for (JsonVariant key : key_down)
-            //{
-            //    Keyboard.pressRaw(key.as<u8_t>());
-            //    //host_serial.println(key.as<u8_t>());
-            //}
-            //for (JsonVariant key : key_up)
-            //{
-            //    Keyboard.releaseRaw(key.as<u8_t>());
-            //    //host_serial.println(key.as<u8_t>());
-            //}
-
             if (mkb_input["key_down"].is<JsonVariant>())
             {
                 Keyboard.pressRaw(mkb_input["key_down"].as<uint8_t>());
@@ -94,6 +109,16 @@ void loop()
             else if (mkb_input["mouse_up"].is<JsonVariant>())
             {
                 Mouse.release(mkb_input["mouse_up"].as<uint8_t>());
+            }
+
+            else if (mkb_input["pwr"].is<JsonVariant>())
+            {
+                digitalWrite(pwr_button, mkb_input["pwr"].as<uint8_t>());
+            }
+
+            else if (mkb_input["cmos"].is<JsonVariant>())
+            {
+                digitalWrite(cmos_button, mkb_input["cmos"].as<uint8_t>());
             }
         }
     }

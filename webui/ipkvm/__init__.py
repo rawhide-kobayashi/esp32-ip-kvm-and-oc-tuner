@@ -100,4 +100,4 @@ from ipkvm.util.mkb import Esp32Serial
 frame_buffer = feed.FrameBuffer()
 esp32_serial = Esp32Serial()
 
-from ipkvm import routes
+from ipkvm import routes, events

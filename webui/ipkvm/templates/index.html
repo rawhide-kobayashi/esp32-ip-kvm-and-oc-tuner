@@ -1,14 +1,30 @@
 <!DOCTYPE html>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<script src="{{ url_for('static', filename='vendor/socket.io.min.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="{{ url_for('static', filename='js/vendor/socketio/socket.io.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vendor/SegmentDisplay/segment-display.js') }}"></script>
+<script src="{{ url_for('static', filename='js/mkb_handler.js') }}"></script>
+<script src="{{ url_for('static', filename='js/seven_segment.js') }}"></script>
 <html>
-<head>
-    <title>IP KVM & OC Tuner</title>
-</head>
-<body>
-    <div id="streamview" class="stream-container">
-        <img src="/video_feed" class="stream-view" />
-    </div>
-</body>
+    <head>
+        <title>IP KVM & OC Tuner</title>
+    </head>
+    
+    <body>
+        <div id="streamview" class="stream-container">
+            <img src="/video_feed" class="stream-view" />
+        </div>
+        <button type="button" onclick="socket.emit(`power_on`);">Power on</button>
+        <button type="button" onclick="socket.emit(`soft_power_off`);">Soft power off</button>
+        <button type="button" onclick="socket.emit(`hard_power_off`);">Hard power off</button>
+        <button type="button" onclick="socket.emit(`reboot`);">Reboot</button>
+        <button type="button" onclick="socket.emit(`reboot_into_bios`);">Reboot into BIOS</button>
+        <button type="button" onclick="socket.emit(`clear_cmos`);">Clear CMOS</button>
+        <div id="displayView" class="topic" style="background-color: rgb(36, 30, 30); border: 3px solid rgb(153, 153, 153); width: 300px; height: 188px;">
+            <div style="padding:20px">
+                <canvas id="display" width="260" height="140">
+                    Your browser is unfortunately not supported.
+                </canvas>
+            </div>
+        </div>
+    </body>
 </html>
-<script src="{{ url_for('static', filename='mkb_handler.js') }}"></script>

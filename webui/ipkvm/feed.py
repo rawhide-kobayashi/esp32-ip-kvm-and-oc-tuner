@@ -6,6 +6,8 @@ from ipkvm import profile
 from ipkvm.util import video
 from ipkvm import logger
 import time
+from PIL import Image
+import io
 
 class FrameBuffer(threading.Thread):
     def __init__(self):
@@ -35,8 +37,20 @@ class FrameBuffer(threading.Thread):
             if not success:
                 break
             else:
-                ret, buffer = cv2.imencode('.jpg', frame)
-                self.cur_frame = buffer.tobytes()
+                # ret, buffer = cv2.imencode('.jpg', frame)
+                # self.cur_frame = buffer.tobytes()
+                # Convert BGR (OpenCV) to RGB (PIL)
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+                # Convert to PIL Image
+                img = Image.fromarray(frame_rgb)
+
+                # Save to a bytes buffer (for in-memory use)
+                buffer = io.BytesIO()
+                img.save(buffer, format="JPEG")
+                jpeg_bytes = buffer.getvalue()  # This contains the JPEG image as bytes
+                self.cur_frame = jpeg_bytes
+
                 self.new_frame.set()
                 
 

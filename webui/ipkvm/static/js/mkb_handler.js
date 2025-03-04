@@ -1,7 +1,14 @@
-const streamview = document.getElementById('streamview');
 var last_mouse_update = Date.now()
 
 var socket = io();
+
+function mkbhandler_load()
+{
+    const streamview = document.getElementById('streamview');
+
+    streamview.addEventListener("mouseenter", enable_listener);
+    streamview.addEventListener("mouseleave", disable_listener);
+}
 
 function keydown_handler(event)
 {
@@ -73,5 +80,4 @@ function disable_listener()
     document.removeEventListener('contextmenu', prevent_right_click);
 }
 
-streamview.addEventListener("mouseenter", enable_listener);
-streamview.addEventListener("mouseleave", disable_listener);
+window.addEventListener("load", mkbhandler_load);
