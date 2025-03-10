@@ -2,9 +2,11 @@ var last_mouse_update = Date.now()
 
 var socket = io();
 
+let streamview;
+
 function mkbhandler_load()
 {
-    const streamview = document.getElementById('streamview');
+    streamview = document.getElementById('streamview');
 
     streamview.addEventListener("mouseenter", enable_listener);
     streamview.addEventListener("mouseleave", disable_listener);
@@ -79,5 +81,13 @@ function disable_listener()
     document.removeEventListener("mouseup", mouseup_handler);
     document.removeEventListener('contextmenu', prevent_right_click);
 }
+
+function update_post_log(data)
+{
+    document.getElementById("post-log-container").innerText += `\n ${data}`;
+    document.getElementById("post-log-container").scrollTop = document.getElementById("post-log-container").scrollHeight;
+}
+
+socket.on("update_post_log", update_post_log);
 
 window.addEventListener("load", mkbhandler_load);

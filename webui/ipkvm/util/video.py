@@ -8,7 +8,6 @@ import av
 import av.container
 import cv2
 from ipkvm import logger
-from ipkvm import profile
 
 @dataclasses.dataclass
 class VideoDevice:

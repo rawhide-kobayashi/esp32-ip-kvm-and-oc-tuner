@@ -4,74 +4,252 @@ digraph bios
     node [shape = "box"]
     style = dashed
     color = red
-    main [label = "Main"]
+    "Main"
     //rankdir = "LR"
+    
+    //VALUES ARE DEFAULT VALUES FROM A FRESHLY CLEARED CMOS
+    //THIS FILE IS NOT TO BE MODIFIED EXCEPT FOR BREAKING BIOS UPDATES
 
-    oc_tweaker [label = "OC Tweaker"]
-    gaming_mode [label = "Gaming Mode" value = "Disabled"]
-    tdp_to_105w [label = "TDP to 105W" value = "Disabled"]
+    subgraph cluster_oc_tweaker
+    {
+        "OC Tweaker"
+        "Gaming Mode"
+        "TDP to 105W"
+        "Performance Boost"
+        "Performance Preset"
+        "Platform Thermal throttle Limit(TjMax)"
+        "CPU Overclocking"
+        "DRAM Frequency"
+        "Memory Context Restore"
+
+        subgraph cluster_dram_profile
+        {
+            "DRAM Profile Configuration"
+            "DRAM Profile Configuration (Enter subfolder)"
+            "DRAM Profile Setting" [option_type = "list" value = "Auto" options = "Auto,DDR5-4800,XMP1-6000" traversal_key = "ArrowDown"]
+            "DRAM Performance Mode" [option_type = "list" value = "AMD AGESA Default" options = "AMD AGESA Default,Competitive,Aggressive" traversal_key = "ArrowDown"]
+        }
+        
+        "DRAM Timing Configuration"
+        "VDDIO Voltage (VDDIO_MEM_S3)"
+        "DRAM VDD Voltage"
+        "DRAM VDDQ Voltage"
+        "DRAM VPP Voltage"
+        "Infinity Fabric Frequency"
+        "UCLK DIV1 MODE"
+        "SOC/Uncore OC Voltage (VDD_SOC)" [option_type = "field" value = "Auto"]
+        "VDD Misc Voltage"
+        "VDDG CCD Voltage"
+        "VDDG IOD Voltage"
+        "VDDP Voltage"
+        "Overclock Mode(Bus Speed)"
+        "BCLK 0 (MHz)" [option_type = "field" value = "Auto"]
+        "Spread Spectrum" [option_type = "list" value = "Auto" options = "Auto,Disabled,Enabled" traversal_key = "ArrowDown"]
+        "External Voltage Settings"
+    }
 
     subgraph cluster_advanced
     {
-        advanced [label = "Advanced"]
-        cpu_config [label = "CPU Configuration"]
-        pci_config [label = "PCI Configuration"]
-        onb_dev_config [label = "Onboard Devices Configuration"]
-        stor_config [label = "Storage Configuration"]
-        acpi_config [label = "ACPI Configuration"]
-        usb_config [label = "USB Configuration"]
-        trust_com [label = "Trusted Computing"]
-        amd_cbs [label = "AMD CBS"]
-        amd_pbs [label = "AMD PBS"]
-        amd_oc [label = "AMD Overclocking"]
-        oc_menu [label = "OC Menu"]
+        "Advanced"
+        "CPU Configuration"
+        "PCI Configuration"
+        "Onboard Devices Configuration"
+        "Storage Configuration"
+        "ACPI Configuration"
+        "USB Configuration"
+        "Trusted Computing"
+        "AMD PBS" 
+
+        subgraph cluster_amd_cbs
+        {
+            "AMD CBS" 
+            "CPU Common Options"
+
+            subgraph cluster_df_options
+            {
+                "DF Common Options"
+                "Memory Addressing"
+                "ACPI"
+                // why in the name of all that is unholy is this list in reverse?!
+                "ACPI SRAT L3 Cache As NUMA Domain" [option_type = "list" value = "Auto" options = "Auto,Enabled,Disabled" traversal_key = "ArrowUp"]
+            }
+
+            "UMC Common Options"
+            subgraph cluster_nbio
+            {
+                "NBIO Common Options"
+                "IOMMU"
+                "PCIe ARI Support"
+                "PCIe All Port ECRC"
+                "Advanced Error Reporting (AER)"
+                "PCIe ARI Enumeration"
+                subgraph cluster_gfx_config
+                {
+                    "GFX Configuration"
+                    "dGPU Only Mode" [option_type = "list" value = "Auto" options = "Auto,Disabled,Enabled" traversal_key = "ArrowDown"]
+                }
+                "Audio Configuration"
+                "PCIe loopback Mode"
+                "Persistence mode for legacy endpoints"
+                "Retimer margining support"
+            }
+        }
+
+        subgraph cluster_amd_overclocking
+        {
+            "AMD Overclocking"
+            "Manual CPU Overclocking"
+            "DDR and Infinity Fabric Frequency/Timings"
+            
+            subgraph cluster_pbo
+            {
+                "Precision Boost Overdrive (Enter subfolder)"
+                "Precision Boost Overdrive"
+                "PBO Limits" [option_type = "list" value = "Auto" options = "Auto,Disable,Motherboard,Manual" traversal_key = "ArrowDown"]
+                "Precision Boost Overdrive Scalar Ctrl"
+                "Precision Boost Overdrive Scalar" [option_type = "list" value = "1X" options = "1X,2X,3X,4X,5X,6X,7X,8X,9X,10X" traversal_key = "ArrowDown"]
+                "CPU Boost Clock Override"
+                "Max CPU Boost Clock Override(+)" [option_type = "field" value = "25"]
+                "Platform Thermal Throttle Ctrl"
+                "GFX Curve Optimizer"
+                "Curve Optimizer"
+                "Curve Shaper"
+            }
+        }
     }
 
     
 
-    tool [label = "Tool"]
-    hw_mon [label = "H/W Monitor"]
-    security [label = "Security"]
-    boot [label = "Boot"]
-    exit [label = "Exit"]
-    save_and_exit [label = "Save Changes and Exit"]
+    subgraph cluster_tool
+    {
+        "Tool"
+        "ASR USB LED test form"
+        "SSD Secure Erase Tool"
+        "Media Sanitization"
+        "Instant Flash"
+        "Auto Driver Installer" [option_type = "list" value = "Enabled" options = "Enabled,Disabled" traversal_key = "ArrowUp"]
+    }
+    "H/W Monitor"
+    "Security"
+    "Boot"
+    "Exit"
+    "Save Changes and Exit"
 
-    main -> oc_tweaker [keypath = "ArrowRight"]
-    oc_tweaker -> advanced [keypath = "ArrowRight"]
-    advanced -> tool [keypath = "ArrowRight"]
-    tool -> hw_mon [keypath = "ArrowRight"]
-    hw_mon -> security [keypath = "ArrowRight"]
-    security -> boot [keypath = "ArrowRight"]
-    boot -> exit [keypath = "ArrowRight"]
+    "Main" -> "OC Tweaker" [keypath = "ArrowRight"]
+    "OC Tweaker" -> "Advanced" [keypath = "ArrowRight"]
+    "Advanced" -> "Tool" [keypath = "ArrowRight"]
+    "Tool" -> "H/W Monitor" [keypath = "ArrowRight"]
+    "H/W Monitor" -> "Security" [keypath = "ArrowRight"]
+    "Security" -> "Boot" [keypath = "ArrowRight"]
+    "Boot" -> "Exit" [keypath = "ArrowRight"]
 
-    exit -> boot [keypath = "ArrowLeft"]
-    boot -> security [keypath = "ArrowLeft"]
-    security -> hw_mon [keypath = "ArrowLeft"]
-    hw_mon -> tool [keypath = "ArrowLeft"]
-    tool -> advanced [keypath = "ArrowLeft"]
-    advanced -> oc_tweaker [keypath = "ArrowLeft"]
-    oc_tweaker -> main [keypath = "ArrowLeft"]
+    "Exit" -> "Boot" [keypath = "ArrowLeft"]
+    "Boot" -> "Security" [keypath = "ArrowLeft"]
+    "Security" -> "H/W Monitor" [keypath = "ArrowLeft"]
+    "H/W Monitor" -> "Tool" [keypath = "ArrowLeft"]
+    "Tool" -> "Advanced" [keypath = "ArrowLeft"]
+    "Advanced" -> "OC Tweaker" [keypath = "ArrowLeft"]
+    "OC Tweaker" -> "Main" [keypath = "ArrowLeft"]
 
-    oc_tweaker -> gaming_mode [keypath = "Home"]
-    gaming_mode -> oc_tweaker [keypath = "Home"]
-    gaming_mode -> tdp_to_105w [keypath = "ArrowDown"]
-    tdp_to_105w -> gaming_mode [keypath = "ArrowUp"]
+    "OC Tweaker" -> "Gaming Mode" [keypath = "Home"]
+    "Gaming Mode" -> "TDP to 105W" [keypath = "ArrowDown"]
+    "TDP to 105W" -> "Performance Boost" [keypath = "ArrowDown"]
+    "Performance Boost" -> "Performance Preset" [keypath = "ArrowDown"]
+    "Performance Preset" -> "Platform Thermal throttle Limit(TjMax)" [keypath = "ArrowDown"]
+    "Platform Thermal throttle Limit(TjMax)" -> "CPU Overclocking" [keypath = "ArrowDown"]
+    "CPU Overclocking" -> "DRAM Frequency" [keypath = "ArrowDown"]
+    "DRAM Frequency" -> "Memory Context Restore" [keypath = "ArrowDown"]
+    "Memory Context Restore" -> "DRAM Profile Configuration" [keypath = "ArrowDown"]
 
-    advanced -> cpu_config [keypath = "Home"]
-    cpu_config -> pci_config [keypath = "ArrowDown"]
-    pci_config -> onb_dev_config [keypath = "ArrowDown"]
-    onb_dev_config -> stor_config [keypath = "ArrowDown"]
-    stor_config -> acpi_config [keypath = "ArrowDown"]
-    acpi_config -> usb_config [keypath = "ArrowDown"]
-    usb_config -> trust_com [keypath = "ArrowDown"]
-    trust_com -> amd_cbs [keypath = "ArrowDown"]
-    amd_cbs -> amd_pbs [keypath = "ArrowDown"]
-    amd_pbs -> amd_oc [keypath = "ArrowDown"]
+    "DRAM Profile Configuration" -> "DRAM Timing Configuration" [keypath = "ArrowDown"]
+    "DRAM Profile Configuration" -> "DRAM Profile Configuration (Enter subfolder)" [keypath = "Enter"]
+    "DRAM Profile Configuration (Enter subfolder)" -> "DRAM Profile Setting" [keypath = "Home"]
+    "DRAM Profile Setting" -> "DRAM Performance Mode" [keypath = "ArrowDown"]
 
-    cpu_config, pci_config, onb_dev_config, stor_config, acpi_config, usb_config, trust_com, amd_cbs, amd_pbs, amd_oc -> advanced [keypath = "Home"]
+    "DRAM Profile Setting", "DRAM Performance Mode" -> "DRAM Profile Configuration" [keypath = "Escape"]
 
-    amd_oc -> oc_menu [keypath = "Enter,Enter"]
-    oc_menu -> amd_oc [keypath = "Escape,Escape"]
+    "DRAM Timing Configuration" -> "VDDIO Voltage (VDDIO_MEM_S3)" [keypath = "ArrowDown"]
+    "VDDIO Voltage (VDDIO_MEM_S3)" -> "DRAM VDD Voltage" [keypath = "ArrowDown"]
+    "DRAM VDD Voltage" -> "DRAM VDDQ Voltage" [keypath = "ArrowDown"]
+    "DRAM VDDQ Voltage" -> "DRAM VPP Voltage" [keypath = "ArrowDown"]
+    "DRAM VPP Voltage" -> "Infinity Fabric Frequency" [keypath = "ArrowDown"]
+    "Infinity Fabric Frequency" -> "UCLK DIV1 MODE" [keypath = "ArrowDown"]
+    "UCLK DIV1 MODE" -> "SOC/Uncore OC Voltage (VDD_SOC)" [keypath = "ArrowDown"]
+    "SOC/Uncore OC Voltage (VDD_SOC)" -> "VDD Misc Voltage" [keypath = "ArrowDown"]
+    "VDD Misc Voltage" -> "VDDG CCD Voltage" [keypath = "ArrowDown"]
+    "VDDG CCD Voltage" -> "VDDG IOD Voltage" [keypath = "ArrowDown"]
+    "VDDG IOD Voltage" -> "VDDP Voltage" [keypath = "ArrowDown"]
+    "VDDP Voltage" -> "Overclock Mode(Bus Speed)" [keypath = "ArrowDown"]
+    "Overclock Mode(Bus Speed)" -> "BCLK 0 (MHz)" [keypath = "ArrowDown" initial_keypath = "Enter,ArrowDown,Enter,ArrowDown" visited = "false"]
+    "BCLK 0 (MHz)" -> "Spread Spectrum" [keypath = "ArrowDown"]
+    "Spread Spectrum" -> "External Voltage Settings" [keypath = "ArrowDown"]
 
-    exit -> save_and_exit [keypath = "Enter,Enter"]
+    "Gaming Mode", "TDP to 105W", "Performance Boost", "Performance Preset", "Platform Thermal throttle Limit(TjMax)", "CPU Overclocking", "DRAM Frequency", "Memory Context Restore", "DRAM Profile Configuration", "DRAM Timing Configuration", "VDDIO Voltage (VDDIO_MEM_S3)", "DRAM VDD Voltage", "DRAM VDDQ Voltage", "DRAM VPP Voltage", "Infinity Fabric Frequency", "UCLK DIV1 MODE", "SOC/Uncore OC Voltage (VDD_SOC)", "VDD Misc Voltage", "VDDG CCD Voltage", "VDDG IOD Voltage", "VDDP Voltage", "Overclock Mode(Bus Speed)", "BCLK 0 (MHz)", "Spread Spectrum", "External Voltage Settings" -> "OC Tweaker" [keypath = "Home"]
+
+    "Advanced" -> "CPU Configuration" [keypath = "Home"]
+    "CPU Configuration" -> "PCI Configuration" [keypath = "ArrowDown"]
+    "PCI Configuration" -> "Onboard Devices Configuration" [keypath = "ArrowDown"]
+    "Onboard Devices Configuration" -> "Storage Configuration" [keypath = "ArrowDown"]
+    "Storage Configuration" -> "ACPI Configuration" [keypath = "ArrowDown"]
+    "ACPI Configuration" -> "USB Configuration" [keypath = "ArrowDown"]
+    "USB Configuration" -> "Trusted Computing" [keypath = "ArrowDown"]
+    "Trusted Computing" -> "AMD CBS" [keypath = "ArrowDown"]
+    "AMD CBS" -> "AMD PBS" [keypath = "ArrowDown"]
+
+    "AMD CBS" -> "CPU Common Options" [keypath = "Enter"]
+    "CPU Common Options" -> "DF Common Options" [keypath = "ArrowDown"]
+    "DF Common Options" -> "Memory Addressing" [keypath = "Enter"]
+    "DF Common Options" -> "ACPI" [keypath = "Enter,ArrowDown"]
+    "ACPI" -> "ACPI SRAT L3 Cache As NUMA Domain" [keypath = "Enter"]
+    "ACPI SRAT L3 Cache As NUMA Domain" -> "ACPI" [keypath = "Escape"]
+    "ACPI" -> "DF Common Options" [keypath = "Escape"]
+    "DF Common Options" -> "UMC Common Options" [keypath = "ArrowDown"]
+    "UMC Common Options" -> "NBIO Common Options" [keypath = "ArrowDown"]
+    "NBIO Common Options" -> "IOMMU" [keypath = "Enter"]
+    "IOMMU" -> "PCIe ARI Support" [keypath = "ArrowDown"]
+    "PCIe ARI Support" -> "PCIe All Port ECRC" [keypath = "ArrowDown"]
+    "PCIe All Port ECRC" -> "Advanced Error Reporting (AER)" [keypath = "ArrowDown"]
+    "Advanced Error Reporting (AER)" -> "PCIe ARI Enumeration" [keypath = "ArrowDown"]
+    "PCIe ARI Enumeration" -> "GFX Configuration" [keypath = "ArrowDown"]
+    "GFX Configuration" -> "dGPU Only Mode" [keypath = "Enter"]
+    "dGPU Only Mode" -> "GFX Configuration" [keypath = "Escape"]
+    "GFX Configuration" -> "Audio Configuration" [keypath = "ArrowDown"]
+    "Audio Configuration" -> "PCIe loopback Mode" [keypath = "ArrowDown"]
+    "PCIe loopback Mode" -> "Persistence mode for legacy endpoints" [keypath = "ArrowDown"]
+    "Persistence mode for legacy endpoints" -> "Retimer margining support" [keypath = "ArrowDown"]
+
+    "IOMMU", "PCIe ARI Support", "PCIe All Port ECRC", "Advanced Error Reporting (AER)", "PCIe ARI Enumeration", "GFX Configuration", "Audio Configuration", "PCIe loopback Mode", "Persistence mode for legacy endpoints", "Retimer margining support" -> "NBIO Common Options" [keypath = "Escape"]
+
+    "CPU Common Options", "DF Common Options", "UMC Common Options", "NBIO Common Options" -> "AMD CBS" [keypath = "Escape"]
+
+    "AMD PBS" -> "AMD Overclocking" [keypath = "ArrowDown"]
+
+    "CPU Configuration", "PCI Configuration", "Onboard Devices Configuration", "Storage Configuration", "ACPI Configuration", "USB Configuration", "Trusted Computing", "AMD CBS", "AMD PBS", "AMD Overclocking" -> "Advanced" [keypath = "Home"]
+
+    "AMD Overclocking" -> "Manual CPU Overclocking" [keypath = "Enter,Enter"]
+    "AMD Overclocking" -> "DDR and Infinity Fabric Frequency/Timings" [keypath = "Enter,Enter,ArrowDown"]
+    "DDR and Infinity Fabric Frequency/Timings" -> "Precision Boost Overdrive (Enter subfolder)" [keypath = "ArrowDown"]
+    "Precision Boost Overdrive (Enter subfolder)" -> "Precision Boost Overdrive" [keypath = "Enter" initial_keypath = "Enter,Enter,ArrowDown,ArrowDown,ArrowDown,Enter" visited = "false"]
+    "Precision Boost Overdrive" -> "PBO Limits" [keypath = "ArrowDown"]
+    "PBO Limits" -> "Precision Boost Overdrive Scalar Ctrl" [keypath = "ArrowDown" initial_keypath = "ArrowDown,Enter,ArrowDown,Enter" visited = "false"]
+    "Precision Boost Overdrive Scalar Ctrl" -> "Precision Boost Overdrive Scalar" [keypath = "ArrowDown"]
+    "Precision Boost Overdrive Scalar" -> "CPU Boost Clock Override" [keypath = "ArrowDown" initial_keypath = "ArrowDown,Enter,ArrowDown,Enter" visited = "false"]
+    "CPU Boost Clock Override" -> "Max CPU Boost Clock Override(+)" [keypath = "ArrowDown"]
+    "Max CPU Boost Clock Override(+)" -> "Platform Thermal Throttle Ctrl" [keypath = "ArrowDown"]
+    "Platform Thermal Throttle Ctrl" -> "GFX Curve Optimizer" [keypath = "ArrowDown"]
+    "GFX Curve Optimizer" -> "Curve Optimizer" [keypath = "ArrowDown"]
+    "Curve Optimizer" -> "Curve Shaper" [keypath = "ArrowDown"]
+
+    "Precision Boost Overdrive", "PBO Limits", "Precision Boost Overdrive Scalar Ctrl", "CPU Boost Clock Override", "Platform Thermal Throttle Ctrl" -> "Precision Boost Overdrive (Enter subfolder)" [keypath = "Escape"]
+    "Precision Boost Overdrive (Enter subfolder)" -> "AMD Overclocking" [keypath = "Escape,Escape"]
+
+    "Tool" -> "ASR USB LED test form" [keypath = "Home"]
+    "ASR USB LED test form" -> "SSD Secure Erase Tool" [keypath = "ArrowDown"]
+    "SSD Secure Erase Tool" -> "Media Sanitization" [keypath = "ArrowDown"]
+    "Media Sanitization" -> "Instant Flash" [keypath = "ArrowDown"]
+    "Instant Flash" -> "Auto Driver Installer" [keypath = "ArrowDown"]
+
+    "ASR USB LED test form", "SSD Secure Erase Tool", "Media Sanitization", "Instant Flash", "Auto Driver Installer" -> "Tool" [keypath = "Home"]
+
+    "Exit" -> "Save Changes and Exit" [keypath = "Enter,Enter"]
 }

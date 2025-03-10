@@ -1,0 +1,28 @@
+[server]
+esp32_serial = "usb-1a86_USB_Single_Serial_585D015807-if00"
+
+[server.video_device]
+friendly_name = "WARRKY USB 3.0"
+format = "mjpeg"
+resolution = "1920x1080"
+fps = "60.000"
+
+[client]
+hostname = "10.20.30.48"
+hwinfo_port = "60000"
+
+[client.overclocking.common]
+"ACPI SRAT L3 Cache As NUMA Domain" = "Enabled"
+"Spread Spectrum" = "Disabled"
+"PBO Limits" = "Motherboard"
+"Precision Boost Overdrive Scalar" = "10X"
+"Max CPU Boost Clock Override(+)" = "200"
+"Auto Driver Installer" = "Disabled"
+# "dGPU Only Mode" = "Enabled"
+
+[client.overclocking.cpu]
+
+[client.overclocking.memory]
+"DRAM Profile Setting" = "XMP1-6000"
+"DRAM Performance Mode" = "Aggressive"
+"SOC/Uncore OC Voltage (VDD_SOC)" = "1.1"

@@ -1,30 +1,76 @@
 <!DOCTYPE html>
+
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <script src="{{ url_for('static', filename='js/vendor/socketio/socket.io.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vendor/SegmentDisplay/segment-display.js') }}"></script>
 <script src="{{ url_for('static', filename='js/mkb_handler.js') }}"></script>
 <script src="{{ url_for('static', filename='js/seven_segment.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/codemirror.css') }}">
+<script src="{{ url_for('static', filename='js/vendor/codemirror/codemirror.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vendor/codemirror/toml/toml.js') }}"></script>
+<script src="{{ url_for('static', filename='js/my-codemirror.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/handsontable/handsontable.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/handsontable/ht-theme-main.min.css') }}">
+<script src="{{ url_for('static', filename='js/vendor/handsontable/handsontable.full.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/table.js') }}"></script>
+
 <html>
-    <head>
-        <title>IP KVM & OC Tuner</title>
-    </head>
-    
-    <body>
-        <div id="streamview" class="stream-container">
-            <img src="/video_feed" class="stream-view" />
+
+<head>
+    <title>IP KVM & OC Tuner</title>
+</head>
+
+<body>
+    <div class="row-flex-container full-screen">
+        <div class="column-flex-container left-third">
+            <div class="menubar">
+                <!-- <div class="dropdown">
+                    <button type="button">Load profile...</button>
+                    <div class="dropdown-options">
+                        <p>Test1</p>
+                        <p>Test2</p>
+                    </div>
+                </div> -->
+                <select id="countrySelect" name="countrySelect">
+                    <option  disabled selected>Load profile...</option>
+                    <option>USA</option>
+                    <option>Germany</option>
+                    <option>France</option>
+                </select>
+                <button type="button" onclick="socket.emit(`save_profile`);">Save</button>
+                <button type="button" onclick="socket.emit(`save_new_profile`);">Save as</button>
+            </div>
+            <div class="cm-editor">
+                <div id="codemirror" class="cm-scroller"></div>
+            </div>
+            <div id="stats-table" class="ht-theme-main"></div>
         </div>
-        <button type="button" onclick="socket.emit(`power_on`);">Power on</button>
-        <button type="button" onclick="socket.emit(`soft_power_off`);">Soft power off</button>
-        <button type="button" onclick="socket.emit(`hard_power_off`);">Hard power off</button>
-        <button type="button" onclick="socket.emit(`reboot`);">Reboot</button>
-        <button type="button" onclick="socket.emit(`reboot_into_bios`);">Reboot into BIOS</button>
-        <button type="button" onclick="socket.emit(`clear_cmos`);">Clear CMOS</button>
-        <div id="displayView" class="topic" style="background-color: rgb(36, 30, 30); border: 3px solid rgb(153, 153, 153); width: 300px; height: 188px;">
-            <div style="padding:20px">
-                <canvas id="display" width="260" height="140">
-                    Your browser is unfortunately not supported.
-                </canvas>
+        <div class="right-third">
+            <div class="row-flex-container">
+                <button type="button" onclick="socket.emit(`power_on`);">Power on</button>
+                <button type="button" onclick="socket.emit(`soft_power_off`);">Soft power off</button>
+                <button type="button" onclick="socket.emit(`hard_power_off`);">Hard power off</button>
+                <button type="button" onclick="socket.emit(`reboot`);">Reboot</button>
+                <button type="button" onclick="socket.emit(`reboot_into_bios`);">Reboot into BIOS</button>
+                <button type="button" onclick="socket.emit(`clear_cmos`);">Clear CMOS</button>
+                <button type="button" onclick="socket.emit(`test_route`);">Test Route</button>
+            </div>
+            <div id="streamview" class="stream-container">
+                <img src="/video_feed" class="stream-view" />
+            </div>
+            <div class="row-flex-container right-third">
+                <div id="post-log-container" class="post-log-container"></div>
+                <div id="displayView" class="topic segment-container">
+                    <div style="padding:20px">
+                        <canvas id="display" width="260" height="140">
+                            Your browser is unfortunately not supported.
+                        </canvas>
+                    </div>
+                </div>
+                </div>
             </div>
         </div>
-    </body>
+    </div>
+</body>
+
 </html>

@@ -2,6 +2,10 @@ from ipkvm import ui
 from ipkvm import esp32_serial
 from ipkvm.util.mkb import HIDKeyCode, HIDMouseScanCodes, GPIO
 import time
+from ipkvm.util import graphs
+from ipkvm import states
+from ipkvm import profile
+import tomlkit
 
 def power_switch(delay: float):
     msg = {
@@ -16,41 +20,36 @@ def power_switch(delay: float):
 
 @ui.on("power_on")
 def handle_poweron():
-    if esp32_serial.power_status == "off":
-        power_switch(0.2)
+    states.model.power_on()
 
 @ui.on("soft_power_off")
 def handle_soft_poweroff():
-    if esp32_serial.power_status == "on":
-        power_switch(0.2)
+    states.model.soft_shutdown()
 
 @ui.on("hard_power_off")
 def handle_hard_poweroff():
-    if esp32_serial.power_status == "on":
-        power_switch(0.5)
+    states.model.hard_shutdown()
 
 @ui.on("reboot_into_bios")
 def handle_reboot_bios():
-    if esp32_serial.power_status == "on": # and OS state = offline
-        power_switch(5)
-        time.sleep(2)
-        power_switch(0.2)
-    
-    else:
-        power_switch(0.2)
-    
-    while time.time() - esp32_serial.bios_timer <= 5 or time.time() - esp32_serial.bios_timer >= 6:
-        print(time.time() - esp32_serial.bios_timer)
-        msg = {
-            "key_down": HIDKeyCode.Delete.value
+    states.model.reboot_into_bios()
+
+@ui.on("clear_cmos")
+def handle_clear_cmos():
+    msg = {
+            "cmos": GPIO.HIGH.value
         }
-        esp32_serial.mkb_queue.put(msg)
-        time.sleep(0.1)
-        msg = {
-            "key_up": HIDKeyCode.Delete.value
+    esp32_serial.mkb_queue.put(msg)
+    time.sleep(0.2)
+    msg = {
+            "cmos": GPIO.LOW.value
         }
-        esp32_serial.mkb_queue.put(msg)
-        time.sleep(0.1)
+    esp32_serial.mkb_queue.put(msg)
+
+    time.sleep(1)
+
+    power_switch(0.2)
+    spam_delete_until_bios()
         
 @ui.on('key_down')
 def handle_keydown(data: str):
@@ -94,3 +93,11 @@ def handle_mouseup(data: int):
     }
     
     esp32_serial.mkb_queue.put(msg)
+
+@ui.on("test_route")
+def handle_test_route():
+    graphs.test_route()
+
+@ui.on("get_current_profile")
+def handle_current_profile():
+    return tomlkit.dumps(profile)

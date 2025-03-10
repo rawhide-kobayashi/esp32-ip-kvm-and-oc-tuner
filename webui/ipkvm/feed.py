@@ -75,7 +75,7 @@ class FrameBuffer(threading.Thread):
         device_list = video.create_device_list()
         device_path = ""
         for device in device_list:
-            if device.friendly_name == profile["video_device"]["friendly_name"]:
+            if device.friendly_name == profile["server"]["video_device"]["friendly_name"]:
                 device_path = device.path
 
         if name == "posix":
@@ -85,8 +85,8 @@ class FrameBuffer(threading.Thread):
             raise RuntimeError("We're on something other than Linux, and that's not yet supported!")
 
         device.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"YUYV"))
-        device.set(cv2.CAP_PROP_FRAME_WIDTH, int(profile["video_device"]["resolution"].split('x')[0]))
-        device.set(cv2.CAP_PROP_FRAME_HEIGHT, int(profile["video_device"]["resolution"].split('x')[1]))
-        device.set(cv2.CAP_PROP_FPS, float(profile["video_device"]["fps"]))
+        device.set(cv2.CAP_PROP_FRAME_WIDTH, int(profile["server"]["video_device"]["resolution"].split('x')[0]))
+        device.set(cv2.CAP_PROP_FRAME_HEIGHT, int(profile["server"]["video_device"]["resolution"].split('x')[1]))
+        device.set(cv2.CAP_PROP_FPS, float(profile["server"]["video_device"]["fps"]))
 
         return device

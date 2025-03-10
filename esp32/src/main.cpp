@@ -53,12 +53,12 @@ void loop()
     {
         if (analogRead(pwr_detect) > 1000)
         {
-            power_status["pwr"] = "on";
+            power_status["pwr"] = true;
         }
 
         else
         {
-            power_status["pwr"] = "off";
+            power_status["pwr"] = false;
         }
 
         serializeJson(power_status, host_serial);

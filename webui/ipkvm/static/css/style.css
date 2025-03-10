@@ -1,8 +1,71 @@
+.full-screen {
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
+}
+
 .stream-container {
     margin: 0 auto;
     border: 20px;
 }
+
 .stream-view {
     width: 100%;
     height: auto;
+}
+
+.column-flex-container {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.row-flex-container {
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+.left-third {
+    flex-basis: 34%;
+    flex-grow: 1;
+}
+
+.right-third {
+    flex-basis: 66%;
+}
+
+.segment-container {
+    background-color: rgb(36, 30, 30);
+    border: 3px solid rgb(153, 153, 153);
+    width: 300px;
+    height: 188px;
+    margin-left: auto;
+}
+
+.post-log-container {
+    border: 1px solid #ccc;
+    overflow: auto;
+    flex-grow: 1;
+    min-height: 1em;
+    max-height: 100%;
+    flex-basis: 0;
+    white-space: pre-wrap;
+}
+
+/* god bless for this https://codsen.com/articles/styling-react-codemirror */
+.cm-editor {
+    /* our container wrapper for Codemirror instance */
+    flex: 1; /* expand to the maximum */
+    height: 100%;
+    position: relative; /* needed for child component .cm-scroller */
+  }
+
+.cm-scroller {
+    position: absolute !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: auto;
 }

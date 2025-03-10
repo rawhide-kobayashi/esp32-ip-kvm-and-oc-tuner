@@ -11,6 +11,280 @@ from collections.abc import Mapping
 
 # python can't use NUMBERS as enum keys?!
 
+PoweredUpCodeDef = {
+    1: "System is entering S1 sleep state",
+    2: "System is entering S2 sleep state",
+    3: "System is entering S3 sleep state",
+    4: "System is entering S4 sleep state",
+    5: "System is entering S5 sleep state",
+    16: "System is waking up from the S1 sleep state",
+    32: "System is waking up from the S2 sleep state",
+    48: "System is waking up from the S3 sleep state",
+    64: "System is waking up from the S4 sleep state",
+    170: "System has transitioned into ACPI mode. Interrupt controller is in APIC mode",
+    172: "System has transitioned into ACPI mode. Interrupt controller is in APIC mode",
+    255: "Indicates a failure has occurred"
+}
+
+POSTTextDef = {
+    0: "Not used",
+    1: "Power on. Reset type detection (soft/hard)",
+    2: "AP initialization before microcode loading",
+    3: "System Agent initialization before microcode loading",
+    4: "PCH initialization before microcode loading",
+    5: "OEM initialization before microcode loading",
+    6: "Microcode loading",
+    7: "AP initialization after microcode loading",
+    8: "System Agent initialization after microcode loading",
+    9: "PCH initialization after microcode loading",
+    10: "OEM initialization after microcode loading",
+    11: "Cache initialization",
+    12: "Reserved for future AMI SEC error codes",
+    13: "Reserved for future AMI SEC error codes",
+    14: "Microcode not found",
+    15: "Microcode not loaded",
+    16: "PEI Core is started",
+    17: "Pre-memory CPU initialization is started",
+    18: "Pre-memory CPU initialization (CPU module specific)",
+    19: "Pre-memory CPU initialization (CPU module specific)",
+    20: "Pre-memory CPU initialization (CPU module specific)",
+    21: "Pre-memory System Agent initialization is started",
+    22: "Pre-Memory System Agent initialization (System Agent module specific)",
+    23: "Pre-Memory System Agent initialization (System Agent module specific)",
+    24: "Pre-Memory System Agent initialization (System Agent module specific)",
+    25: "Pre-memory PCH initialization is started",
+    26: "Pre-memory PCH initialization (PCH module specific)",
+    27: "Pre-memory PCH initialization (PCH module specific)",
+    28: "Pre-memory PCH initialization (PCH module specific)",
+    29: "OEM pre-memory initialization codes",
+    30: "OEM pre-memory initialization codes",
+    31: "OEM pre-memory initialization codes",
+    32: "OEM pre-memory initialization codes",
+    33: "OEM pre-memory initialization codes",
+    34: "OEM pre-memory initialization codes",
+    35: "OEM pre-memory initialization codes",
+    36: "OEM pre-memory initialization codes",
+    37: "OEM pre-memory initialization codes",
+    38: "OEM pre-memory initialization codes",
+    39: "OEM pre-memory initialization codes",
+    40: "OEM pre-memory initialization codes",
+    41: "OEM pre-memory initialization codes",
+    42: "OEM pre-memory initialization codes",
+    43: "Memory initialization. Serial Presence Detect (SPD) data reading",
+    44: "Memory initialization. Memory presence detection",
+    45: "Memory initialization. Programming memory timing information",
+    46: "Memory initialization. Confi guring memory",
+    47: "Memory initialization (other)",
+    48: "Reserved for ASL",
+    49: "Memory Installed",
+    50: "CPU post-memory initialization is started",
+    51: "CPU post-memory initialization. Cache initialization",
+    52: "CPU post-memory initialization. Application Processor(s) (AP) initialization",
+    53: "CPU post-memory initialization. Boot Strap Processor (BSP) selection",
+    54: "CPU post-memory initialization. System Management Mode (SMM) initialization",
+    55: "Post-Memory System Agent initialization is started",
+    56: "Post-Memory System Agent initialization (System Agent module specific)",
+    57: "Post-Memory System Agent initialization (System Agent module specific)",
+    58: "Post-Memory System Agent initialization (System Agent module specific)",
+    59: "Post-Memory PCH initialization is started",
+    60: "Post-Memory PCH initialization (PCH module specific)",
+    61: "Post-Memory PCH initialization (PCH module specific)",
+    62: "Post-Memory PCH initialization (PCH module specific)",
+    63: "OEM post memory initialization codes",
+    64: "OEM post memory initialization codes",
+    65: "OEM post memory initialization codes",
+    66: "OEM post memory initialization codes",
+    67: "OEM post memory initialization codes",
+    68: "OEM post memory initialization codes",
+    69: "OEM post memory initialization codes",
+    70: "OEM post memory initialization codes",
+    71: "OEM post memory initialization codes",
+    72: "OEM post memory initialization codes",
+    73: "OEM post memory initialization codes",
+    74: "OEM post memory initialization codes",
+    75: "OEM post memory initialization codes",
+    76: "OEM post memory initialization codes",
+    77: "OEM post memory initialization codes",
+    78: "OEM post memory initialization codes",
+    79: "DXE IPL is started",
+    80: "Memory initialization error. Invalid memory type or incompatible memory speed",
+    81: "Memory initialization error. SPD reading has failed",
+    82: "Memory initialization error. Invalid memory size or memory modules do not match",
+    83: "Memory initialization error. No usable memory detected",
+    84: "Unspecified memory initialization error",
+    85: "Memory not installed",
+    86: "Invalid CPU type or Speed",
+    87: "CPU mismatch",
+    88: "CPU self test failed or possible CPU cache error",
+    89: "CPU micro-code is not found or micro-code update is failed",
+    90: "Internal CPU error",
+    91: "reset PPI is not available",
+    92: "Reserved for future AMI error codes",
+    93: "Reserved for future AMI error codes",
+    94: "Reserved for future AMI error codes",
+    95: "Reserved for future AMI error codes",
+    96: "DXE Core is started",
+    97: "NVRAM initialization",
+    98: "Installation of the PCH Runtime Services",
+    99: "CPU DXE initialization is started",
+    100: "CPU DXE initialization (CPU module specific)",
+    101: "CPU DXE initialization (CPU module specific)",
+    102: "CPU DXE initialization (CPU module specific)",
+    103: "CPU DXE initialization (CPU module specific)",
+    104: "PCI host bridge initialization",
+    105: "System Agent DXE initialization is started",
+    106: "System Agent DXE SMM initialization is started",
+    107: "System Agent DXE initialization (System Agent module specific)",
+    108: "System Agent DXE initialization (System Agent module specific)",
+    109: "System Agent DXE initialization (System Agent module specific)",
+    110: "System Agent DXE initialization (System Agent module specific)",
+    111: "System Agent DXE initialization (System Agent module specific)",
+    112: "PCH DXE initialization is started",
+    113: "PCH DXE SMM initialization is started",
+    114: "PCH devices initialization",
+    115: "PCH DXE Initialization (PCH module specific)",
+    116: "PCH DXE Initialization (PCH module specific)",
+    117: "PCH DXE Initialization (PCH module specific)",
+    118: "PCH DXE Initialization (PCH module specific)",
+    119: "PCH DXE Initialization (PCH module specific)",
+    120: "ACPI module initialization",
+    121: "CSM initialization",
+    122: "Reserved for future AMI DXE codes",
+    123: "Reserved for future AMI DXE codes",
+    124: "Reserved for future AMI DXE codes",
+    125: "Reserved for future AMI DXE codes",
+    126: "Reserved for future AMI DXE codes",
+    127: "Reserved for future AMI DXE codes",
+    128: "OEM DXE initialization codes",
+    129: "OEM DXE initialization codes",
+    130: "OEM DXE initialization codes",
+    131: "OEM DXE initialization codes",
+    132: "OEM DXE initialization codes",
+    133: "OEM DXE initialization codes",
+    134: "OEM DXE initialization codes",
+    135: "OEM DXE initialization codes",
+    136: "OEM DXE initialization codes",
+    137: "OEM DXE initialization codes",
+    138: "OEM DXE initialization codes",
+    139: "OEM DXE initialization codes",
+    140: "OEM DXE initialization codes",
+    141: "OEM DXE initialization codes",
+    142: "OEM DXE initialization codes",
+    143: "OEM DXE initialization codes",
+    144: "Boot Device Selection (BDS) phase is started",
+    145: "Driver connecting is started",
+    146: "PCI Bus initialization is started",
+    147: "PCI Bus Hot Plug Controller Initialization",
+    148: "PCI Bus Enumeration 32",
+    149: "PCI Bus Request Resources",
+    150: "PCI Bus Assign Resources",
+    151: "Console Output devices connect",
+    152: "Console input devices connect",
+    153: "Super IO Initialization",
+    154: "USB initialization is started",
+    155: "USB Reset",
+    156: "USB Detect",
+    157: "USB Enable",
+    158: "Reserved for future AMI codes",
+    159: "Reserved for future AMI codes",
+    160: "IDE initialization is started",
+    161: "IDE Reset",
+    162: "IDE Detect",
+    163: "IDE Enable",
+    164: "SCSI initialization is started",
+    165: "SCSI Reset",
+    166: "SCSI Detect",
+    167: "SCSI Enable",
+    168: "Setup Verifying Password",
+    169: "Start of Setup",
+    170: "Reserved for ASL",
+    171: "Setup Input Wait",
+    172: "Reserved for ASL",
+    173: "Ready To Boot event",
+    174: "Legacy Boot event",
+    175: "Exit Boot Services event",
+    176: "Runtime Set Virtual Address MAP Begin",
+    177: "Runtime Set Virtual Address MAP End",
+    178: "Legacy Option ROM Initialization",
+    179: "System Reset",
+    180: "USB hot plug",
+    181: "PCI bus hot plug",
+    182: "Clean-up of NVRAM",
+    183: "Confi guration Reset (reset of NVRAM settings)",
+    184: "Reserved for future AMI codes",
+    185: "Reserved for future AMI codes",
+    186: "Reserved for future AMI codes",
+    187: "Reserved for future AMI codes",
+    188: "Reserved for future AMI codes",
+    189: "Reserved for future AMI codes",
+    190: "Reserved for future AMI codes",
+    191: "Reserved for future AMI codes",
+    192: "OEM BDS initialization codes",
+    193: "OEM BDS initialization codes",
+    194: "OEM BDS initialization codes",
+    195: "OEM BDS initialization codes",
+    196: "OEM BDS initialization codes",
+    197: "OEM BDS initialization codes",
+    198: "OEM BDS initialization codes",
+    199: "OEM BDS initialization codes",
+    200: "OEM BDS initialization codes",
+    201: "OEM BDS initialization codes",
+    202: "OEM BDS initialization codes",
+    203: "OEM BDS initialization codes",
+    204: "OEM BDS initialization codes",
+    205: "OEM BDS initialization codes",
+    206: "OEM BDS initialization codes",
+    207: "OEM BDS initialization codes",
+    208: "CPU initialization error",
+    209: "System Agent initialization error",
+    210: "PCH initialization error",
+    211: "Some of the Architectural Protocols are not available",
+    212: "PCI resource allocation error. Out of Resources",
+    213: "No Space for Legacy Option ROM",
+    214: "No Console Output Devices are found",
+    215: "No Console Input Devices are found",
+    216: "Invalid password",
+    217: "Error loading Boot Option (LoadImage returned error)",
+    218: "Boot Option is failed (StartImage returned error)",
+    219: "Flash update is failed",
+    220: "Reset protocol is not available",
+    221: "Reserved for future AMI progress codes",
+    222: "Reserved for future AMI progress codes",
+    223: "Reserved for future AMI progress codes",
+    224: "S3 Resume is stared (S3 Resume PPI is called by the DXE IPL)",
+    225: "S3 Boot Script execution",
+    226: "Video repost",
+    227: "OS S3 wake vector call",
+    228: "Reserved for future AMI progress codes",
+    229: "Reserved for future AMI progress codes",
+    230: "Reserved for future AMI progress codes",
+    231: "Reserved for future AMI progress codes",
+    232: "S3 Resume Failed",
+    233: "S3 Resume PPI not Found",
+    234: "S3 Resume Boot Script Error",
+    235: "S3 OS Wake Error",
+    236: "Reserved for future AMI error codes 31",
+    237: "Reserved for future AMI error codes 31",
+    238: "Reserved for future AMI error codes 31",
+    239: "Reserved for future AMI error codes 31",
+    240: "Recovery condition triggered by firmware (Auto recovery)",
+    241: "Recovery condition triggered by user (Forced recovery)",
+    242: "Recovery process started",
+    243: "Recovery firmware image is found",
+    244: "Recovery firmware image is loaded",
+    245: "Reserved for future AMI progress codes",
+    246: "Reserved for future AMI progress codes",
+    247: "Reserved for future AMI progress codes",
+    248: "Recovery PPI is not available",
+    249: "Recovery capsule is not found",
+    250: "Invalid recovery capsule",
+    251: "Reserved for future AMI error codes",
+    252: "Reserved for future AMI error codes",
+    253: "Reserved for future AMI error codes",
+    254: "Reserved for future AMI error codes",
+    255: "Indicates a failure has occurred"
+}
+
 POSTHex7Segment = {
     0: "00",
     1: "01",
@@ -278,6 +552,21 @@ HIDMouseScanCodes = {
     4: 16
 }
 
+ASCII2JS= {
+    "1": "Digit1",
+    "2": "Digit2",
+    "3": "Digit3",
+    "4": "Digit4",
+    "5": "Digit5",
+    "6": "Digit6",
+    "7": "Digit7",
+    "8": "Digit8",
+    "9": "Digit9",
+    "0": "Digit0",
+
+    ".": "Period"
+}
+
 class GPIO(IntEnum):
     LOW = 0
     HIGH = 1
@@ -422,8 +711,11 @@ class Esp32Serial(threading.Thread):
         self.mkb_queue: Queue[Mapping[str, int | str | Mapping[str, int]]] = Queue()
         self.change_serial_device = threading.Event()
         self.device = self.get_device()
-        self.bios_timer = time.time()
-        self.power_status = None
+        self._power_status = False
+        self._last_post_code = "00"
+        self.notify_code: str
+        self.active_notification_request = threading.Event()
+        self.post_code_notify = threading.Event()
 
         self.start()
 
@@ -443,16 +735,18 @@ class Esp32Serial(threading.Thread):
                         line = json.loads(ser.readline().decode().strip())
 
                         if "pwr" in line:
-                            self.power_status = line["pwr"]
+                            self._power_status = line["pwr"]
 
                         elif "post_code" in line:
-                            # This code is what presents when you are in BIOS, but also... Other times.
-                            # In another part of the script, we'll check to see if it's hung around for a few
-                            # seconds. If so, we are in BIOS.
-                            if POSTHex7Segment[line["post_code"]] != "Ab":
-                                self.bios_timer = time.time()
+                            self._last_post_code = POSTHex7Segment[line["post_code"]]
 
                             ui.emit("update_seven_segment", POSTHex7Segment[line["post_code"]])
+                            ui.emit("update_post_log", f"{POSTTextDef[line["post_code"]]}: {POSTHex7Segment[line["post_code"]]}")
+
+                            if self.active_notification_request.is_set():
+                                if self._last_post_code == self.notify_code:
+                                    self.post_code_notify.set()
+                                    self.active_notification_request.clear()
 
                     except json.JSONDecodeError:
                         continue
@@ -465,8 +759,29 @@ class Esp32Serial(threading.Thread):
 
     def get_device(self):
         if name == "posix":
-            return serial.Serial(f"/dev/serial/by-id/{profile["esp32_serial"]}", 115200, bytesize=serial.EIGHTBITS,
+            return serial.Serial(f"/dev/serial/by-id/{profile["server"]["esp32_serial"]}", 115200, bytesize=serial.EIGHTBITS,
                                  parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE)
         
         else:
             raise RuntimeError("Your OS is unsupported!")
+        
+    def ez_press_key(self, key: str):
+        msg = msg = {
+            "key_down": HIDKeyCode[key].value
+        }
+
+        self.mkb_queue.put(msg)
+
+        msg = msg = {
+            "key_up": HIDKeyCode[key].value
+        }
+
+        self.mkb_queue.put(msg)
+
+    @property
+    def power_status(self):
+        return self._power_status
+    
+    @property
+    def last_post_code(self):
+        return self._last_post_code
