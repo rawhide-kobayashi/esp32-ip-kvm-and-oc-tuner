@@ -2,12 +2,9 @@ from enum import Enum
 import time
 from transitions.experimental.utils import with_model_definitions, add_transitions, transition
 from transitions.extensions import GraphMachine
-from ipkvm import esp32_serial
+from ipkvm.util import esp32_serial
 from ipkvm.util.mkb import GPIO, HIDKeyCode
-import logging
-logging.basicConfig(level=logging.DEBUG)
-# Set transitions' log level to INFO; DEBUG messages will be omitted
-logging.getLogger('transitions').setLevel(logging.DEBUG)
+from ipkvm.app import logging, ui
 
 class State(Enum):
     PoweredOff = "powered off"
@@ -166,5 +163,3 @@ model = Overclocking()
 machine = MyMachine(model, states=State, initial=model.state)
 
 machine.get_graph().draw('my_state_diagram.svg', prog='dot')
-print(model.client_powered)
-print(model.state)

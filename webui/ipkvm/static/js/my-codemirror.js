@@ -1,8 +1,10 @@
+let code_mirror;
+
 function codemirror_load()
 {
     const code_div = document.getElementById('codemirror');
 
-    var code_mirror = CodeMirror(code_div, {
+    code_mirror = CodeMirror(code_div, {
        lineNumbers: true 
     })
 

@@ -1,0 +1,28 @@
+# This is a text editor! Type in here!
+[server]
+esp32_serial = "Pick from above"
+
+[server.video_device]
+friendly_name = "Pick from above"
+resolution = "Pick from above"
+fps = "Pick from above"
+
+[client]
+hostname = "IP or hostname for your overclocking client"
+hwinfo_port = "60000" # Unless you've changed it!
+
+[client.overclocking.common] # Just some ideas of how the settings may work for your system
+# "ACPI SRAT L3 Cache As NUMA Domain" = "Enabled"
+# "Spread Spectrum" = "Disabled"
+# "PBO Limits" = "Motherboard"
+# "Precision Boost Overdrive Scalar" = "10X"
+# "Max CPU Boost Clock Override(+)" = "200"
+# "Auto Driver Installer" = "Disabled"
+# "dGPU Only Mode" = "Enabled"
+
+[client.overclocking.cpu]
+
+[client.overclocking.memory]
+# "DRAM Profile Setting" = "XMP1-6000"
+# "DRAM Performance Mode" = "Aggressive"
+# "SOC/Uncore OC Voltage (VDD_SOC)" = "1.1"

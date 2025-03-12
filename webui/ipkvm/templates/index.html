@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/handsontable/ht-theme-main.min.css') }}">
 <script src="{{ url_for('static', filename='js/vendor/handsontable/handsontable.full.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/table.js') }}"></script>
+<script src="{{ url_for('static', filename='js/profiles.js') }}"></script>
 
 <html>
 
@@ -24,26 +25,28 @@
     <div class="row-flex-container full-screen">
         <div class="column-flex-container left-third">
             <div class="menubar">
-                <!-- <div class="dropdown">
-                    <button type="button">Load profile...</button>
-                    <div class="dropdown-options">
-                        <p>Test1</p>
-                        <p>Test2</p>
-                    </div>
-                </div> -->
-                <select id="countrySelect" name="countrySelect">
-                    <option  disabled selected>Load profile...</option>
-                    <option>USA</option>
-                    <option>Germany</option>
-                    <option>France</option>
+                <select id="profile-select">
+                    <option  disabled selected class="first-option">Load profile...</option>
                 </select>
-                <button type="button" onclick="socket.emit(`save_profile`);">Save</button>
-                <button type="button" onclick="socket.emit(`save_new_profile`);">Save as</button>
+                <select id="serial-select" onchange="code_mirror.setValue(update_toml('esp32_serial', this.value));"">
+                    <option  disabled selected class="first-option">Serial device...</option>
+                </select>
+                <select id="video-select" onchange="code_mirror.setValue(update_toml('friendly_name', this.value)); populate_resolution(this.value);">
+                    <option  disabled selected class="first-option">Video device...</option>
+                </select>
+                <select id="resolution-select" onchange="code_mirror.setValue(update_toml('resolution', this.value)); populate_fps(this.value, videoDropdown.value);">
+                    <option  disabled selected class="first-option">Resolution...</option>
+                </select>
+                <select id="fps-select" onchange="code_mirror.setValue(update_toml('fps', this.value));">
+                    <option  disabled selected class="first-option">FPS...</option>
+                </select>
+                <button type="button" onclick="socket.emit('save_profile', code_mirror.getValue());">Save</button>
+                <button type="button" onclick="save_new_profile();">Save as</button>
             </div>
             <div class="cm-editor">
                 <div id="codemirror" class="cm-scroller"></div>
             </div>
-            <div id="stats-table" class="ht-theme-main"></div>
+            <div id="stats-table" class="ht-theme-main">Waiting for data...</div>
         </div>
         <div class="right-third">
             <div class="row-flex-container">

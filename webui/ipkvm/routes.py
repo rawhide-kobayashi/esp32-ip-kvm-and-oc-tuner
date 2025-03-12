@@ -1,5 +1,5 @@
-from ipkvm import app
-from ipkvm import frame_buffer
+from ipkvm.app import app
+from ipkvm.util.video import frame_buffer
 from flask import Response, render_template
 
 

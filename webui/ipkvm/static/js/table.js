@@ -9,6 +9,8 @@ function create_table(data) {
     let row_headers = []
     let col_headers = []
 
+    container.innerText = ""
+
     Object.keys(data).forEach((key, index) => {
         row_headers.push(key)
         Object.keys(data[key]).forEach((value, subIndex) => {

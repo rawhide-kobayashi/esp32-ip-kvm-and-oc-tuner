@@ -69,3 +69,7 @@
     left: 0;
     overflow: auto;
 }
+
+.first-option {
+    display:none;
+}

@@ -1,21 +1,16 @@
 import networkx as nx
 from networkx import Graph
 from typing import Any
-from ipkvm import esp32_serial
+from ipkvm.util import esp32_serial
 from ipkvm.util.mkb import ASCII2JS
 import time
-import tomlkit
 
 # Type checker lunacy!
 type MultiDiGraph = Graph[Any]
-visited_edges: list[set[str | int]] = []
-
-with open("OC/test_oc_profile.toml") as file:
-    settings = tomlkit.parse(file.read())
 
 key_delay = 0.1
 
-def traverse_path(graph: MultiDiGraph, node_a: str, node_b: str, visited_edges: list[set[str | int]]):
+def traverse_path(graph: MultiDiGraph, node_a: str, node_b: str):
     path = nx.shortest_path(graph, node_a, node_b)
     path_edges = list(zip(path[:-1], path[1:]))
     edge_path= [(u, v, graph[u][v]) for u, v in path_edges]
@@ -62,7 +57,7 @@ def apply_setting(graph: MultiDiGraph, setting_node: str, new_value: str):
 
 
 
-def test_route():
+def test_route(settings: dict[Any, Any]):
     graph: MultiDiGraph = nx.nx_agraph.read_dot("bios-maps/asrock/b650e-riptide-wifi.gv")
 
     current_node = "Main"
@@ -70,6 +65,6 @@ def test_route():
     for category in settings:
         for setting_node in settings[category]:
             if graph.nodes[setting_node]["value"] != settings[category][setting_node]:
-                traverse_path(graph, current_node, setting_node, visited_edges)
+                traverse_path(graph, current_node, setting_node)
                 current_node = setting_node
                 apply_setting(graph, setting_node, settings[category][setting_node])
