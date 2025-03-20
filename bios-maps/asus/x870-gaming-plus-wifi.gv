@@ -1,0 +1,264 @@
+digraph bios
+{
+    //compound = true
+    node [shape = "box"]
+    style = dashed
+    color = red
+    //rankdir = "LR"
+    
+    //VALUES ARE DEFAULT VALUES FROM A FRESHLY CLEARED CMOS
+    //THIS FILE IS NOT TO BE MODIFIED EXCEPT FOR BREAKING BIOS UPDATES
+
+    subgraph cluster_headers
+    {
+        "EZ Mode"
+        "Main"
+        "Ai Tweaker"
+        subgraph cluster_ai_tweaker
+        {
+            "Ai Overclock Tuner"
+            "DOCP"
+            "BCLK Frequency"
+            "Memory Frequency"
+            "FCLK Frequency"
+            "Core tunings Configuration for gaming"
+            "Core Performance Boost"
+            "CPU Core Ratio"
+            "CPU Core Ratio (Per CCX)"
+            "Turbo Game Mode"
+            "Gaming Adaptive CCD Parker"
+            "AI Cache Boost"
+            "DRAM Timing Control"
+            // "Precision Boost Overdrive" skip over this, not using it
+            "DIGI + VRM"
+            subgraph cluster_vrm
+            {
+                "DIGI + VRM (Enter subfolder)"
+                "VRM Initialization Check"
+                "Voltage training" [option_type = "list" value = "Auto" options = "Auto,Disabled,Enabled" traversal_key = "ArrowDown"]
+                "CPU Load-line Calibration" [option_type = "list" value = "Auto" options = "Auto,Level 1,Level 2,Level 3,Level 4,Level 5,Level 6,Level 7,Level 8" traversal_key = "ArrowDown"]
+                "CPU Current Capability" [option_type = "list" value = "Auto" options = "Auto,100%,110%,120%,130%,140%" traversal_key = "ArrowDown"]
+                "CPU VRM Switching Frequency"
+                "Fixed CPU VRM Switching Frequency(KHz)" [option_type = "field" value = "600"]
+                "CPU Power Duty Control"
+                "CPU Power Phase Control" [option_type = "list" value = "Auto" options = "Auto,Standard,Optimized,Extreme,Manual" traversal_key = "ArrowDown"]
+                "VDDSOC Current Capability" [option_type = "list" value = "Auto" options = "Auto,100%,110%,120%,130%,140%" traversal_key = "ArrowDown"]
+                "VDDSOC Switching Frequency" 
+                "Fixed VDDSOC Switching Frequency(KHz)" [option_type = "field" value = "600"]
+                "VDDSOC Power Duty Control"
+                "VDDSOC Power Phase Control" [option_type = "list" value = "Auto" options = "Auto,Standard,Optimized,Extreme,Manual" traversal_key = "ArrowDown"]
+            }
+
+            "Performance Bias"
+            "Tweaker's Paradise"
+            "Core Flex"
+            "AI Features"
+            "CPU Core Voltage"
+            "CPU SOC Voltage" 
+            "VDDSOC Voltage Override" [option_type = "field" value = "Auto"]
+            "CPU VDDIO/MC Voltage"
+            "Misc Voltage"
+            "VDDP Voltage"
+            "High DRAM Voltage Mode"
+            "DRAM VDD Voltage"
+            "DRAM VDDQ Voltage"
+            "VDDG CCD Voltage"
+            "VDDG IOD Voltage"
+            "Advanced Memory Voltages"
+        }
+
+        "Advanced"
+        subgraph cluster_advanced
+        {
+            "Trusted Computing"
+            // unimportant
+            // "AMD fTPM Configuration"
+            // "UEFI Variable Protection"
+            // "CPU Configuration"
+            // "PCI Subsystem Settings"
+            // "USB Configuration"
+            // "Network Stack Configuration"
+            // "NVMe Configuration"
+            // "HDD/SSD SMART Information"
+            // "SATA Configuration"
+            // "APM Configuration"
+            "Onboard Devices Configuration"
+            "NB Configuration"
+            subgraph cluster_nb_config
+            {
+                "NB Configuration (Enter subfolder)"
+                "Primary Video Device"
+                "Integrated Graphics" [option_type = "list" value = "Auto" options = "Auto,Force,Disabled" traversal_key = "ArrowUp"]
+                "UMA Frame Buffer Size"
+            }
+
+            "AMD CBS"
+            subgraph cluster_amd_cbs
+            {
+                // why in the name of all that is unholy is this list in reverse?!
+                // this is probably the only option that matters
+                "ACPI SRAT L3 Cache As NUMA Domain" [option_type = "list" value = "Auto" options = "Auto,Enabled,Disabled" traversal_key = "ArrowUp"]
+            }
+
+            "AMD PBS"
+            "AMD Overclocking"
+            subgraph cluster_amd_overclocking
+            {
+                "AMD Overclocking Subfolder"
+                "Manual CPU Overclocking"
+                "DDR and Infinity Fabric Frequency/Timings"
+                "Precision Boost Overdrive"
+                subgraph cluster_pbo
+                {
+                    "Precision Boost Overdrive (Enter subfolder)"
+                    "Precision Boost Overdrive (Setting)"
+                    "PBO Limits" [option_type = "list" value = "Auto" options = "Auto,Disable,Motherboard,Manual" traversal_key = "ArrowDown"]
+                    "Precision Boost Overdrive Scalar Ctrl"
+                    "Precision Boost Overdrive Scalar" [option_type = "list" value = "1X" options = "1X,2X,3X,4X,5X,6X,7X,8X,9X,10X" traversal_key = "ArrowDown"]
+                    "CPU Boost Clock Override"
+                    "Max CPU Boost Clock Override(+)" [option_type = "field" value = "25"]
+                    "Platform Thermal Throttle Ctrl"
+                    "GFX Curve Optimizer"
+                    "Curve Optimizer"
+                    "Curve Shaper"
+                }
+            }
+        }
+
+        "Monitor"
+        "Boot"
+        "Tool"
+        subgraph cluster_tool
+        {
+            // nothing else here matters
+            "Download & Install ASUS DriverHub app" [option_type = "list" value = "Enabled" options = "Enabled,Disabled" traversal_key = "ArrowUp"]
+        }
+
+        "Exit"
+    }
+
+    
+
+    
+
+    
+
+    
+    "Monitor"
+    "Boot"
+    "Exit"
+    "Save Changes and Exit"
+
+    "EZ Mode" -> "Main" [keypath = "F7"]
+    "Main" -> "Ai Tweaker" [keypath = "ArrowRight"]
+    "Ai Tweaker" -> "Advanced" [keypath = "ArrowRight"]
+    "Advanced" -> "Tool" [keypath = "ArrowRight"]
+    "Tool" -> "Monitor" [keypath = "ArrowRight"]
+    "Monitor" -> "Boot" [keypath = "ArrowRight"]
+    "Boot" -> "Exit" [keypath = "ArrowRight"]
+
+    "Exit" -> "Boot" [keypath = "ArrowLeft"]
+    "Boot" -> "Monitor" [keypath = "ArrowLeft"]
+    "Monitor" -> "Tool" [keypath = "ArrowLeft"]
+    "Tool" -> "Advanced" [keypath = "ArrowLeft"]
+    "Advanced" -> "Ai Tweaker" [keypath = "ArrowLeft"]
+
+    "Ai Tweaker" -> "Ai Overclock Tuner" [keypath = "Home" initial_keypath = "Home,Enter,ArrowDown,ArrowDown,ArrowDown,ArrowDown,Enter" visited = "false"]
+    "Ai Overclock Tuner" -> "DOCP" [keypath = "ArrowDown"]
+    "DOCP" -> "BCLK Frequency" [keypath = "ArrowDown"]
+    "BCLK Frequency" -> "Memory Frequency" [keypath = "ArrowDown"]
+    "Memory Frequency" -> "FCLK Frequency" [keypath = "ArrowDown"]
+    "FCLK Frequency" -> "Core tunings Configuration for gaming" [keypath = "ArrowDown"]
+    "Core tunings Configuration for gaming" -> "Core Performance Boost" [keypath = "ArrowDown"]
+    "Core Performance Boost" -> "CPU Core Ratio" [keypath = "ArrowDown"]
+    "CPU Core Ratio" -> "CPU Core Ratio (Per CCX)" [keypath = "ArrowDown"]
+    "CPU Core Ratio (Per CCX)" -> "Turbo Game Mode" [keypath = "ArrowDown"]
+    "Turbo Game Mode" -> "Gaming Adaptive CCD Parker" [keypath = "ArrowDown"]
+    "Gaming Adaptive CCD Parker" -> "AI Cache Boost" [keypath = "ArrowDown"]
+    "AI Cache Boost" -> "DRAM Timing Control" [keypath = "ArrowDown"]
+    // skip over PBO menu here, it's bad
+    "DRAM Timing Control" -> "DIGI + VRM" [keypath = "ArrowDown,ArrowDown"]
+
+    "DIGI + VRM" -> "DIGI + VRM (Enter subfolder)" [keypath = "Enter,Home"]
+    "DIGI + VRM (Enter subfolder)" -> "VRM Initialization Check" [keypath = "ArrowDown"]
+    "VRM Initialization Check" -> "Voltage training" [keypath = "ArrowDown"]
+    "Voltage training" -> "CPU Load-line Calibration" [keypath = "ArrowDown"]
+    "CPU Load-line Calibration" -> "CPU Current Capability" [keypath = "ArrowDown"]
+    "CPU Current Capability" -> "CPU VRM Switching Frequency" [keypath = "ArrowDown" initial_keypath = "ArrowDown,Enter,ArrowDown,Enter" visited = "false"]
+    "CPU VRM Switching Frequency" -> "Fixed CPU VRM Switching Frequency(KHz)" [keypath = "ArrowDown"]
+    "Fixed CPU VRM Switching Frequency(KHz)" -> "CPU Power Duty Control" [keypath = "ArrowDown"]
+    "CPU Power Duty Control" -> "CPU Power Phase Control" [keypath = "ArrowDown"]
+    "CPU Power Phase Control" -> "VDDSOC Current Capability" [keypath = "ArrowDown"]
+    "VDDSOC Current Capability" -> "VDDSOC Switching Frequency" [keypath = "ArrowDown" initial_keypath = "ArrowDown,Enter,ArrowDown,Enter" visited = "false"]
+    "VDDSOC Switching Frequency" -> "Fixed VDDSOC Switching Frequency(KHz)" [keypath = "ArrowDown"]
+    "Fixed VDDSOC Switching Frequency(KHz)" -> "VDDSOC Power Duty Control" [keypath = "ArrowDown"]
+    "VDDSOC Power Duty Control" -> "VDDSOC Power Phase Control" [keypath = "ArrowDown"]
+
+    "DIGI + VRM (Enter subfolder)", "VRM Initialization Check", "Voltage training", "CPU Load-line Calibration", "CPU Current Capability", "CPU VRM Switching Frequency", "CPU Power Duty Control", "CPU Power Phase Control", "VDDSOC Current Capability", "VDDSOC Switching Frequency", "VDDSOC Power Duty Control", "VDDSOC Power Phase Control" -> "DIGI + VRM" [keypath = "Escape"]
+
+    "DIGI + VRM" -> "Performance Bias" [keypath = "ArrowDown"]
+    "Performance Bias" -> "Tweaker's Paradise" [keypath = "ArrowDown"]
+    "Tweaker's Paradise" -> "Core Flex" [keypath = "ArrowDown"]
+    "Core Flex" -> "AI Features" [keypath = "ArrowDown"]
+    "AI Features" -> "CPU Core Voltage" [keypath = "ArrowDown"]
+    "CPU Core Voltage" -> "CPU SOC Voltage" [keypath = "ArrowDown", initial_keypath = "ArrowDown,Enter,ArrowDown,Enter" visited = "false"]
+    "CPU SOC Voltage" -> "VDDSOC Voltage Override" [keypath = "ArrowDown"]
+    "VDDSOC Voltage Override" -> "CPU VDDIO/MC Voltage" [keypath = "ArrowDown"]
+    "CPU VDDIO/MC Voltage" -> "Misc Voltage" [keypath = "ArrowDown"]
+    "Misc Voltage" -> "VDDP Voltage" [keypath = "ArrowDown"]
+    "VDDP Voltage" -> "High DRAM Voltage Mode" [keypath = "ArrowDown"]
+    "High DRAM Voltage Mode" -> "DRAM VDD Voltage" [keypath = "ArrowDown"]
+    "DRAM VDD Voltage" -> "DRAM VDDQ Voltage" [keypath = "ArrowDown"]
+    "DRAM VDDQ Voltage" -> "VDDG CCD Voltage" [keypath = "ArrowDown"]
+    "VDDG CCD Voltage" -> "VDDG IOD Voltage" [keypath = "ArrowDown"]
+    "VDDG IOD Voltage" -> "Advanced Memory Voltages" [keypath = "ArrowDown"]
+
+    "Ai Overclock Tuner", "DOCP", "BCLK Frequency", "Memory Frequency", "FCLK Frequency", "Core tunings Configuration for gaming", "Core Performance Boost", "CPU Core Ratio", "CPU Core Ratio (Per CCX)", "Turbo Game Mode", "Gaming Adaptive CCD Parker", "AI Cache Boost", "DRAM Timing Control", "DIGI + VRM", "Performance Bias", "Tweaker's Paradise", "Core Flex", "AI Features", "CPU Core Voltage", "CPU SOC Voltage", "CPU VDDIO/MC Voltage", "Misc Voltage", "VDDP Voltage", "High DRAM Voltage Mode", "DRAM VDD Voltage", "DRAM VDDQ Voltage", "VDDG CCD Voltage", "VDDG IOD Voltage", "Advanced Memory Voltages" -> "Ai Tweaker" [keypath = "Home"]
+
+    "Advanced" -> "Trusted Computing" [keypath = "Home"]
+    "Trusted Computing" -> "Onboard Devices Configuration" [keypath = "ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown"]
+    "Onboard Devices Configuration" -> "NB Configuration" [keypath = "ArrowDown"]
+
+    "NB Configuration" -> "NB Configuration (Enter subfolder)" [keypath = "Enter,Home"]
+    "NB Configuration (Enter subfolder)" -> "Primary Video Device" [keypath = "ArrowDown"]
+    "Primary Video Device" -> "Integrated Graphics" [keypath = "ArrowDown"]
+    "Integrated Graphics" -> "UMA Frame Buffer Size" [keypath = "ArrowDown"]
+
+    "NB Configuration (Enter subfolder)", "Primary Video Device", "Integrated Graphics", "UMA Frame Buffer Size" -> "NB Configuration" [keypath = "Escape"]
+
+    "NB Configuration" -> "AMD CBS" [keypath = "ArrowDown"]
+    "AMD CBS" -> "AMD PBS" [keypath = "ArrowDown"]
+    "AMD PBS" -> "AMD Overclocking" [keypath = "ArrowDown"]
+
+    "Onboard Devices Configuration", "NB Configuration", "AMD CBS", "AMD PBS", "Trusted Computing" -> "Advanced" [keypath = "Home"]
+
+    "AMD CBS" -> "ACPI SRAT L3 Cache As NUMA Domain" [keypath = "Enter,Home,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,Enter,Home,ArrowDown,ArrowDown,Enter,Home,ArrowDown"]
+    "ACPI SRAT L3 Cache As NUMA Domain" -> "AMD CBS" [keypath = "Escape,Escape,Escape"]
+
+    "AMD Overclocking" -> "AMD Overclocking Subfolder" [keypath = "Enter,Home,ArrowDown,Enter,Home"]
+    "AMD Overclocking Subfolder" -> "Manual CPU Overclocking" [keypath = "ArrowDown"]
+    "Manual CPU Overclocking" -> "DDR and Infinity Fabric Frequency/Timings" [keypath = "ArrowDown"]
+    "DDR and Infinity Fabric Frequency/Timings" -> "Precision Boost Overdrive" [keypath = "ArrowDown"]
+
+    "AMD Overclocking Subfolder", "Manual CPU Overclocking", "DDR and Infinity Fabric Frequency/Timings", "Precision Boost Overdrive" -> "AMD PBS" [keypath = "Escape,Escape"]
+
+    "Precision Boost Overdrive" -> "Precision Boost Overdrive (Enter subfolder)" [keypath = "Enter"]
+    "Precision Boost Overdrive (Enter subfolder)" -> "Precision Boost Overdrive (Setting)" [keypath = "ArrowDown" initial_keypath = "ArrowDown,Enter,ArrowDown,ArrowDown,ArrowDown,Enter" visited = "false"]
+    "Precision Boost Overdrive (Setting)" -> "PBO Limits" [keypath = "ArrowDown"]
+    "PBO Limits" -> "Precision Boost Overdrive Scalar Ctrl" [keypath = "ArrowDown" initial_keypath = "ArrowDown,Enter,ArrowDown,Enter" visited = "false"]
+    "Precision Boost Overdrive Scalar Ctrl" -> "Precision Boost Overdrive Scalar" [keypath = "ArrowDown"]
+    "Precision Boost Overdrive Scalar" -> "CPU Boost Clock Override" [keypath = "ArrowDown" initial_keypath = "ArrowDown,Enter,ArrowDown,Enter" visited = "false"]
+    "CPU Boost Clock Override" -> "Max CPU Boost Clock Override(+)" [keypath = "ArrowDown"]
+    "Max CPU Boost Clock Override(+)" -> "Platform Thermal Throttle Ctrl" [keypath = "ArrowDown"]
+    "Platform Thermal Throttle Ctrl" -> "GFX Curve Optimizer" [keypath = "ArrowDown"]
+    "GFX Curve Optimizer" -> "Curve Optimizer" [keypath = "ArrowDown"]
+    "Curve Optimizer" -> "Curve Shaper" [keypath = "ArrowDown"]
+
+    "Precision Boost Overdrive", "PBO Limits", "Precision Boost Overdrive Scalar Ctrl", "CPU Boost Clock Override", "Platform Thermal Throttle Ctrl" -> "Precision Boost Overdrive (Enter subfolder)" [keypath = "Escape"]
+    "Precision Boost Overdrive (Enter subfolder)" -> "AMD Overclocking" [keypath = "Escape,Escape"]
+
+    "Tool" -> "Download & Install ASUS DriverHub app" [keypath = "Home,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,ArrowDown,Enter,Home,ArrowDown"]
+    "Download & Install ASUS DriverHub app" -> "Tool" [keypath = "Escape"]
+
+    "Exit" -> "Save Changes and Exit" [keypath = "Enter,Enter"]
+}

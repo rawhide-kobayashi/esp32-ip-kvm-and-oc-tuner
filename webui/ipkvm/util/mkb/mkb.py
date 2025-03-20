@@ -1,15 +1,17 @@
 from enum import IntEnum
 from os import name, listdir
 import serial
-from ipkvm.app import logger, ui
+from ipkvm.app import logger
 from ipkvm.util.profiles import profile_manager
 import threading
 from queue import Queue
 import json
+import networkx as nx
 import time
 from collections.abc import Mapping
-from .post_codes import POSTTextDef, POSTHex7Segment
-from .scancodes import HIDKeyCode
+# from .post_codes import POSTTextDef, POSTHex7Segment
+from .scancodes import ASCII2JS, HIDKeyCode
+from ipkvm.util.types import MultiDiGraph, OverclockingDict
 
 class GPIO(IntEnum):
     LOW = 0
@@ -18,13 +20,17 @@ class GPIO(IntEnum):
 class Esp32Serial(threading.Thread):
     def __init__(self):
         super().__init__()
-        self.post_code_queue: Queue[str] = Queue()
+        # self.post_code_queue: Queue[str] = Queue()
         self.mkb_queue: Queue[Mapping[str, int | str | Mapping[str, int]]] = Queue()
-        self._power_status = False
-        self._last_post_code = "00"
-        self.notify_code: str
-        self.active_notification_request = threading.Event()
-        self.post_code_notify = threading.Event()
+        # self._power_status = False
+        self._usb_status = False
+        self._last_usb_status = False
+        # self._last_post_code = "00"
+        # self.notify_code: str
+        # self.active_notification_request = threading.Event()
+        # self.post_code_notify = threading.Event()
+
+        self._key_delay = 0.2
 
         self.start()
 
@@ -48,19 +54,29 @@ class Esp32Serial(threading.Thread):
                     try:
                         line = json.loads(ser.readline().decode().strip())
 
-                        if "pwr" in line:
-                            self._power_status = line["pwr"]
+                        # self._power_status = line["pwr"]
+                        self._usb_status = line["usb"]
 
-                        elif "post_code" in line:
-                            self._last_post_code = POSTHex7Segment[line["post_code"]]
+                        if self._usb_status != self._last_usb_status:
+                            if self._usb_status:
+                                logger.info("Client machine cleared POST.")
+                            else:
+                                logger.info("Client machine powered off.")
 
-                            ui.emit("update_seven_segment", POSTHex7Segment[line["post_code"]])
-                            ui.emit("update_post_log", f"{POSTTextDef[line["post_code"]]}: {POSTHex7Segment[line["post_code"]]}")
+                            self._last_usb_status = self._usb_status
 
-                            if self.active_notification_request.is_set():
-                                if self._last_post_code == self.notify_code:
-                                    self.post_code_notify.set()
-                                    self.active_notification_request.clear()
+                        # elif "post_code" in line:
+                        #     self._last_post_code = POSTHex7Segment[line["post_code"]]
+# 
+                        #     ui.emit("update_seven_segment", POSTHex7Segment[line["post_code"]])
+                        #     ui.emit("update_post_log", f"{POSTTextDef[line["post_code"]]}: {POSTHex7Segment[line["post_code"]]}")
+# 
+                        #     if self.active_notification_request.is_set():
+                        #         if self._last_post_code == self.notify_code:
+                        #             self.post_code_notify.set()
+                        #             self.active_notification_request.clear()
+# 
+                        #     print(f"{POSTTextDef[line["post_code"]]}: {POSTHex7Segment[line["post_code"]]}")
 
                     except json.JSONDecodeError:
                         continue
@@ -77,7 +93,7 @@ class Esp32Serial(threading.Thread):
                                  bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE)
         
         else:
-            raise RuntimeError("Your OS is unsupported!")
+            raise RuntimeError("Your OS is unsupported at this time!")
         
     def ez_press_key(self, key: str):
         msg = msg = {
@@ -100,11 +116,72 @@ class Esp32Serial(threading.Thread):
             serial_devices = []
  
         return serial_devices
+    
+    def _traverse_path(self, graph: MultiDiGraph, node_a: str, node_b: str):
+        path = nx.shortest_path(graph, node_a, node_b)
+        path_edges = list(zip(path[:-1], path[1:]))
+        edge_path= [(u, v, graph[u][v]) for u, v in path_edges]
 
-    @property
-    def power_status(self):
-        return self._power_status
+        for step in edge_path:
+            if "initial_keypath" in step[2][0] and step[2][0]["visited"] == "false":
+                keys = step[2][0]["initial_keypath"].split(',')
+                # Type checker is simply wrong! This is the correct usage!
+                graph.edges[step[0], step[1], 0]["visited"] = "true" # type: ignore
+
+            else:
+                keys = step[2][0]["keypath"].split(',')
+
+            for key in keys:
+                time.sleep(self._key_delay)
+                self.ez_press_key(key)
+
+    def _apply_setting(self, graph: MultiDiGraph, setting_node: str, new_value: str):
+        if graph.nodes[setting_node]["option_type"] == "list":
+            possible_values = graph.nodes[setting_node]["options"].split(',')
+            key = graph.nodes[setting_node]["traversal_key"]
+
+            time.sleep(self._key_delay)
+            self.ez_press_key("Enter")
+
+            for value in possible_values:
+                time.sleep(self._key_delay)
+                if value == new_value:
+                    self.ez_press_key("Enter")
+                    break
+
+                else:
+                    self.ez_press_key(key)
+
+        elif graph.nodes[setting_node]["option_type"] == "field":
+            for key in new_value:
+                time.sleep(self._key_delay)
+                self.ez_press_key(ASCII2JS[key])
+            time.sleep(self._key_delay)
+            self.ez_press_key("Enter")
+
+        logger.info(f"Changed {setting_node} from {graph.nodes[setting_node]["value"]} to {new_value}!")
+        graph.nodes[setting_node]["value"] = new_value
+
+
+
+    def apply_all_settings(self, settings: OverclockingDict, graph: MultiDiGraph, current_node: str):
+        for category in settings:
+            for setting_node in settings[category]:
+                if graph.nodes[setting_node]["value"] != settings[category][setting_node]:
+                    self._traverse_path(graph, current_node, setting_node)
+                    current_node = setting_node
+                    self._apply_setting(graph, setting_node, settings[category][setting_node])
+
+        return current_node
+
+    # @property
+    # def power_status(self):
+    #     return self._power_status
     
     @property
-    def last_post_code(self):
-        return self._last_post_code
+    def usb_status(self):
+        return self._usb_status
+    
+    # @property
+    # def last_post_code(self):
+    #     return self._last_post_code

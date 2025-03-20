@@ -1,26 +1,10 @@
+from networkx import nx_agraph
 from os import listdir
+from os.path import exists
 import threading
 import tomlkit
-from ipkvm.app import logger, ui
-from typing import TypedDict
-
-class VideoDict(TypedDict):
-    friendly_name: str
-    resolution: str
-    fps: str
-
-class ServerDict(TypedDict):
-    esp32_serial: str
-    video_device: VideoDict
-
-class ClientDict(TypedDict):
-    hostname: str
-    hwinfo_port: str
-    overclocking: dict[str, dict[str, str]]
-
-class ProfileDict(TypedDict):
-    server: ServerDict
-    client: ClientDict
+from ipkvm.app import logger
+from ipkvm.util.types import MultiDiGraph, ProfileDict
 
 class ProfileManager():
     def __init__(self):
@@ -29,6 +13,7 @@ class ProfileManager():
         self.restart_hwinfo = threading.Event()
         self._cur_profile_name: str = ""
         self._profiles = listdir("profiles")
+        self._bios_map: MultiDiGraph
 
         if len(self._profiles) == 0:
             logger.info("No profiles found, loading default profile.")
@@ -50,6 +35,9 @@ class ProfileManager():
         with open(f"profiles/{name}", 'r') as file:
             self._cur_profile_name = name
             self._profile = tomlkit.parse(file.read()) # type: ignore
+            if exists(self._profile["client"]["bios_map_path"]):
+                self._bios_map = nx_agraph.read_dot(self._profile["client"]["bios_map_path"])
+
             self.notify_all()
         
     def save_profile(self, new_profile: ProfileDict, name: str = ""):
@@ -94,3 +82,7 @@ class ProfileManager():
     @property
     def profile(self):
         return self._profile
+    
+    @property
+    def bios_map(self):
+        return self._bios_map

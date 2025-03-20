@@ -2,9 +2,9 @@
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <script src="{{ url_for('static', filename='js/vendor/socketio/socket.io.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/vendor/SegmentDisplay/segment-display.js') }}"></script>
+<!-- <script src="{{ url_for('static', filename='js/vendor/SegmentDisplay/segment-display.js') }}"></script> -->
 <script src="{{ url_for('static', filename='js/mkb_handler.js') }}"></script>
-<script src="{{ url_for('static', filename='js/seven_segment.js') }}"></script>
+<!-- <script src="{{ url_for('static', filename='js/seven_segment.js') }}"></script> -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/codemirror.css') }}">
 <script src="{{ url_for('static', filename='js/vendor/codemirror/codemirror.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vendor/codemirror/toml/toml.js') }}"></script>
@@ -46,7 +46,7 @@
             <div class="cm-editor">
                 <div id="codemirror" class="cm-scroller"></div>
             </div>
-            <div id="stats-table" class="ht-theme-main">Waiting for data...</div>
+            
         </div>
         <div class="right-third">
             <div class="row-flex-container">
@@ -56,12 +56,13 @@
                 <button type="button" onclick="socket.emit(`reboot`);">Reboot</button>
                 <button type="button" onclick="socket.emit(`reboot_into_bios`);">Reboot into BIOS</button>
                 <button type="button" onclick="socket.emit(`clear_cmos`);">Clear CMOS</button>
-                <button type="button" onclick="socket.emit(`test_route`);">Test Route</button>
+                <button type="button" onclick="socket.emit(`apply_current_bios_settings`);">Apply Current BIOS Settings</button>
             </div>
             <div id="streamview" class="stream-container">
                 <img src="/video_feed" class="stream-view" />
             </div>
-            <div class="row-flex-container right-third">
+            <div id="stats-table" class="ht-theme-main">Waiting for data...</div>
+            <!-- <div class="row-flex-container right-third">
                 <div id="post-log-container" class="post-log-container"></div>
                 <div id="displayView" class="topic segment-container">
                     <div style="padding:20px">
@@ -71,7 +72,7 @@
                     </div>
                 </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </body>

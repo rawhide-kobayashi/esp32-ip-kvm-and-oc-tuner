@@ -51,7 +51,7 @@ class HWInfoMonitor(threading.Thread):
                         temp_list.append(round(reading["value"], 2))
 
                     elif match.group("core_vid"):
-                        vid_list.append(reading["value"])
+                        vid_list.append(round(reading["value"], 3))
 
                     elif match.group("core_mhz"):
                         mhz_list.append(round(reading["value"], 2))
@@ -70,7 +70,8 @@ class HWInfoMonitor(threading.Thread):
             ui.emit("update_core_info_table", core_dataframe.to_dict("index"))
 
         except Exception as e:
-            print(e)
+            #print(e)
+            pass
 
     def is_hwinfo_alive(self):
         request = requests.get(self.request_url, timeout=1)

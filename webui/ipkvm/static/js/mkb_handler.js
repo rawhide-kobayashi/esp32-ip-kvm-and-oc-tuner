@@ -14,7 +14,10 @@ function mkbhandler_load()
 
 function keydown_handler(event)
 {
-    socket.emit('key_down', event.code);
+    if (event.code != "MetaLeft" && event.code != "MetaRight")
+    {
+        socket.emit('key_down', event.code);
+    }
     event.preventDefault();
     event.stopPropagation();
 }

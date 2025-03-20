@@ -12,9 +12,9 @@ function create_table(data) {
     container.innerText = ""
 
     Object.keys(data).forEach((key, index) => {
-        row_headers.push(key)
+        col_headers.push(key)
         Object.keys(data[key]).forEach((value, subIndex) => {
-            col_headers.push(value)
+            row_headers.push(value)
         });
     });
 
@@ -34,7 +34,7 @@ function update_core_info_table(data) {
         hot.batch(() => {
             Object.keys(data).forEach((key, index) => {
                 Object.keys(data[key]).forEach((value, subIndex) => {
-                    hot.setDataAtCell(index, subIndex, data[key][value])
+                    hot.setDataAtCell(subIndex, index, data[key][value])
                 });
             });
         });

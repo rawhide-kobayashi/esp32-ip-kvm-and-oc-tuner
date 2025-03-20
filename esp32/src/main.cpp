@@ -9,37 +9,40 @@ void loop() {}
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <USB.h>
+#include <USBHID.h>
 #include <USBHIDMouse.h>
 #include <USBHIDKeyboard.h>
 #include <USBHIDSystemControl.h>
 
+USBHID HID;
 USBHIDAbsoluteMouse Mouse;
 USBHIDKeyboard Keyboard;
 
 HardwareSerial &host_serial = Serial;
-HardwareSerial &mobo_serial = Serial1;
+// HardwareSerial &mobo_serial = Serial1;
 
 JsonDocument mkb_input;
-JsonDocument post_codes;
+// JsonDocument post_codes;
 JsonDocument power_status;
 
 // put function declarations here:
 int myFunction(int, int);
 
-const int8_t pwr_button = 3;
-const int8_t cmos_button = 46;
-const int8_t pwr_detect = 8;
+const int8_t pwr_button = 46;
+const int8_t cmos_button = 3;
+// const int8_t pwr_detect = 8;
 
 void setup()
 {
     host_serial.begin(115200);
-    mobo_serial.begin(115200, SERIAL_8N1, 18);
+    // mobo_serial.begin(115200, SERIAL_8N1, 18);
+    HID.begin();
     Mouse.begin();
     Keyboard.begin();
     USB.begin();
     pinMode(pwr_button, OUTPUT);
     pinMode(cmos_button, OUTPUT);
-    pinMode(pwr_detect, INPUT);
+    // pinMode(pwr_detect, INPUT);
 }
 
 void loop()
@@ -51,7 +54,7 @@ void loop()
 
     if (cur_loop_timestamp - check_power_status_timestamp >= 100000)
     {
-        if (analogRead(pwr_detect) > 1000)
+        /* if (analogRead(pwr_detect) > 1000)
         {
             power_status["pwr"] = true;
         }
@@ -59,6 +62,16 @@ void loop()
         else
         {
             power_status["pwr"] = false;
+        } */
+
+        if (HID.ready())
+        {
+            power_status["usb"] = true;
+        }
+
+        else
+        {
+            power_status["usb"] = false;
         }
 
         serializeJson(power_status, host_serial);
@@ -66,12 +79,12 @@ void loop()
         check_power_status_timestamp = esp_timer_get_time();
     }
 
-    while (mobo_serial.available())
+    /* while (mobo_serial.available())
     {
         post_codes["post_code"] = mobo_serial.read();
         serializeJson(post_codes, host_serial);
         host_serial.write('\n');
-    }
+    } */
 
     if (host_serial.available())
     {
