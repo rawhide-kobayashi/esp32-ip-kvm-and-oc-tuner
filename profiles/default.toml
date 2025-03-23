@@ -10,9 +10,11 @@ fps = "60.000"
 [client]
 hostname = "10.20.30.90"
 hwinfo_port = "60000" # Unless you've changed it!
+ssh_username = "rawhide"
 # MAKE SURE YOU USE SINGLE QUOTES, THIS HAS TO BE A LITERAL
-ryzen_smu_cli_path = 'C:\Users\rawhide\Downloads\win-x64\ryzen-smu-cli.exe'
-ycruncher_path = 'C:\Users\rawhide\Downloads\y-cruncher v0.8.6.9545b\y-cruncher v0.8.6.9545\y-cruncher.exe'
+# Alternatively, just make sure ycruncher and ryzen-smu-cli are in your PATH and leave it as it is
+ryzen_smu_cli_path = 'C:\Users\rawhide\Downloads\ryzen-smu-cli-0.0.2\ryzen-smu-cli.exe'
+ycruncher_path = 'C:\Users\rawhide\Downloads\y-cruncher v0.8.6.9545\y-cruncher v0.8.6.9545\y-cruncher.exe'
 bios_map_path = 'bios-maps/asus/x870-gaming-plus-wifi.gv'
 
 [client.overclocking.common] # Just some ideas of how the settings may work for your system

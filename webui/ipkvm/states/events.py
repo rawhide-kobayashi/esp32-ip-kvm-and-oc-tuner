@@ -45,3 +45,7 @@ def handle_clear_cmos():
             "pwr": GPIO.LOW.value
         }
     esp32_serial.mkb_queue.put(msg)
+
+@ui.on("begin_automation")
+def handle_begin_automation():
+    model.begin_automation()

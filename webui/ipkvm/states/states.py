@@ -5,7 +5,10 @@ from transitions.extensions import GraphMachine
 from ipkvm.util.mkb import esp32_serial
 from ipkvm.util.mkb.mkb import GPIO
 from ipkvm.util.mkb.scancodes import HIDKeyCode
-from ipkvm.app import logging, ui
+from ipkvm.app import logging, ui, logger
+from ipkvm.util.hwinfo import hw_monitor
+from ipkvm.states import ssh
+from ipkvm.util.profiles import profile_manager
 
 logging.basicConfig(level=logging.INFO)
 
@@ -15,7 +18,7 @@ class State(Enum):
     BIOSSetup = "bios setup"
     WaitingForOS = "waiting for os"
     OCTypeDecision = "next process decision"
-    RoughMulticoreUndervolt = "rough multicore undervolting"
+    SynchronizeMulticoreVID = "sync multicore vid"
     PreciseMulticoreUndervolt = "precise multicore undervolting"
     POST = "power on self test"
     WaitingForHWInfo = "waiting for hwinfo"
@@ -36,6 +39,8 @@ class Overclocking:
     _running_automatic = False
 
     _current_BIOS_location = "EZ Mode"
+
+    _PBO_offsets: list[int] = []
 
     # TRANSITION DEFINITIONS
     @add_transitions(transition(State.PoweredOff, State.POST, unless="client_powered"))
@@ -68,21 +73,20 @@ class Overclocking:
     @add_transitions(transition(State.BootLoop, State.PoweredOff))
     def trigger_cmos_reset(self): ...
  
-    @add_transitions(transition([State.IdleWaitingForInput, State.RoughMulticoreUndervolt,
+    @add_transitions(transition([State.IdleWaitingForInput, State.SynchronizeMulticoreVID,
                                  State.PreciseMulticoreUndervolt, State.SingleCoreTuning], State.POST))
     def reboot(self): ...
 
     @add_transitions(transition([State.BIOSSetup, State.IdleWaitingForInput, State.POST, State.WaitingForOS,
-                                 State.RoughMulticoreUndervolt, State.PreciseMulticoreUndervolt, 
-                                 State.SingleCoreTuning], State.PoweredOff, after="_hard_shutdown"))
+                                 State.SynchronizeMulticoreVID, State.PreciseMulticoreUndervolt, 
+                                 State.SingleCoreTuning, State.PoweredOff], State.PoweredOff, after="_hard_shutdown"))
     def hard_shutdown(self): ...
 
-    @add_transitions(transition(State.IdleWaitingForInput, State.PoweredOff,
-                                after="_soft_shutdown"))
+    @add_transitions(transition(State.IdleWaitingForInput, State.PoweredOff, after="_soft_shutdown"))
     def soft_shutdown(self): ...
 
-    @add_transitions(transition(State.OCTypeDecision, State.RoughMulticoreUndervolt))
-    def rough_multicore_undervolt(self): ...
+    @add_transitions(transition(State.OCTypeDecision, State.SynchronizeMulticoreVID))
+    def synchronize_vid(self): ...
 
     @add_transitions(transition(State.OCTypeDecision, State.PreciseMulticoreUndervolt))
     def precise_multicore_undervolt(self): ...
@@ -92,6 +96,13 @@ class Overclocking:
 
     @add_transitions(transition([State.POST, State.EnterBIOS], State.IdleWaitingForInput))
     def go_idle(self): ...
+
+    # I WANTED THESE TO BE FUNCTION REFERENCES BUT IT DOESN'T WORK
+    _OC_steps = {
+        "synchronize_vid": False,
+        "precise_multicore_undervolt": False,
+        "single_core_tuning": False
+    }
 
     
     # PROPERTIES GO HERE
@@ -133,20 +144,9 @@ class Overclocking:
                 self.go_idle()
 
     def on_enter_EnterBIOS(self):
-        # # Wait until the POST has progressed far enough for USB devices to be loaded and options to be imminent
-        # esp32_serial.notify_code = "45"
-        # esp32_serial.active_notification_request.set()
-        # esp32_serial.post_code_notify.wait()
-        # esp32_serial.post_code_notify.clear()
-# 
-        # # Spam delete until the BIOS is loaded
-        # esp32_serial.notify_code = "Ab"
-        # esp32_serial.active_notification_request.set()
-        # while not esp32_serial.post_code_notify.is_set():
-        
         spam_timer = time.time()
 
-        # Crushed by my lack of consistent access to BIOS post codes, we simply take our time...
+        # Crushed by my lack of consistent access to BIOS post codes, we simply spam once USB is available...
         while time.time() - spam_timer <= 10:
             msg = {
             "key_down": HIDKeyCode.Delete.value
@@ -159,9 +159,7 @@ class Overclocking:
             esp32_serial.mkb_queue.put(msg)
             time.sleep(0.1)
 
-        # esp32_serial.post_code_notify.clear()
-
-        # Wait a few seconds for the BIOS to become responsive
+        # Wait a few seconds for the BIOS to become responsive...
         time.sleep(5)
 
         self._enter_bios_flag = False
@@ -172,9 +170,77 @@ class Overclocking:
         else:
             self.go_idle()
 
+    def on_enter_WaitingForHWInfo(self):
+        self._running_automatic = True
+        while not hw_monitor.is_hwinfo_alive:
+            pass
+
+        self.hwinfo_available()
+
+    def on_enter_OCTypeDecision(self):
+        # I WANTED THESE TO BE FUNCTION REFERENCES BUT IT DOESN'T WORK
+        if not self._OC_steps["synchronize_vid"]:
+            self.synchronize_vid()
+
+        elif not self._OC_steps["precise_multicore_undervolt"]:
+            self.precise_multicore_undervolt()
+
+        elif not self._OC_steps["single_core_tuning"]:
+            self.single_core_tuning()
+
+    def on_enter_SynchronizeMulticoreVID(self):
+        ssh_conn = ssh.ssh_conn(profile_manager.profile["client"]["hostname"],
+                                profile_manager.profile["client"]["ssh_username"],
+                                profile_manager.profile["client"]["ycruncher_path"],
+                                profile_manager.profile["client"]["ryzen_smu_cli_path"])
+        
+        self._PBO_offsets = [0] * hw_monitor.core_dataframe.shape[0]
+        
+        ssh_conn.start_ycruncher([x for x in range(hw_monitor.core_dataframe.shape[0] * 2)], [11])
+
+        conditions_met = False
+
+        while not conditions_met:
+            avg_vid: dict[str, float] = {f"Core {x}": 0 for x in range(hw_monitor.core_dataframe.shape[0])}
+
+            # Short wait to allow values to settle. This could be expanded to wait until the PPT does not change
+            # within a certain envelope for worse cooling systems...
+            time.sleep(5)
+
+            data = hw_monitor.collect_data(10)
+
+            
+
+            for frame in data:
+                for row in frame.itertuples():
+                    avg_vid[row.Index] = avg_vid[row.Index] + row.VID
+
+            data_len = len(data)
+
+            for core in avg_vid:
+                avg_vid[core] = avg_vid[core] / data_len
+
+            highest_vid_index = self.get_highest_vid_index(avg_vid)
+            self._PBO_offsets[highest_vid_index] -= 1
+            ssh_conn.run_smu_cmd(f"--offset {highest_vid_index}:{self._PBO_offsets[highest_vid_index]}")
+            logger.info(f"Highest core was core {highest_vid_index} at {avg_vid[f"Core {highest_vid_index}"]}, changed offset to {self._PBO_offsets[highest_vid_index]}!")
+
+        print(self._PBO_offsets)    
+
+    def get_highest_vid_index(self, vid_list: dict[str, float]):
+        highest_index = 0
+        for index in range(len(vid_list) - 1):
+            if vid_list[f"Core {index + 1}"] > vid_list[f"Core {highest_index}"]:
+                highest_index = index + 1
+
+        return highest_index
+
+
+        
+
     # STATE EXIT FUNCTIONS
     def on_exit_PoweredOff(self):
-        self._power_switch(0.2)        
+        self._power_switch(0.2)
     
     # UTILITY FUNCTIONS GO HERE
     def _power_switch(self, delay: float):

@@ -21,6 +21,7 @@ class OverclockingDict(TypedDict):
 class ClientDict(TypedDict):
     hostname: str
     hwinfo_port: str
+    ssh_username: str
     ryzen_smu_cli_path: str
     ycruncher_path: str
     bios_map_path: str

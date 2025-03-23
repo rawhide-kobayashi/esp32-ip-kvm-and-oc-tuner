@@ -6,3 +6,4 @@ app = Flask(__name__)
 ui = SocketIO(app)
 logger = app.logger
 logger.setLevel(logging.INFO)
+logger.propagate = False
